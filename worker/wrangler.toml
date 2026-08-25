@@ -1,0 +1,20 @@
+# Created: 2026-08-25 10:50 MST (America/Phoenix)
+name = "tearsheets-worker"
+main = "tearsheets-worker-2026-08-25-1337.js"
+compatibility_date = "2026-08-01"
+# cron intentionally absent until a manual /run survives; then uncomment:
+# [triggers]
+# crons = ["0 12 * * 1"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tearsheets"
+database_id = "fc33d85a-b76e-4285-834d-ee7b44278e3c"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "tearsheets"
+
+[vars]
+SHEET_ID = "REPLACE_OR_LEAVE_EMPTY"
+# secrets set via dashboard or: wrangler secret put SERPAPI_KEY / ADMIN_TOKEN / SHEETS_SA

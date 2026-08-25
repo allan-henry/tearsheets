@@ -1,0 +1,25 @@
+<!doctype html>
+<!-- Created: 2026-08-25 09:55 MST (America/Phoenix). Photo grid, one cell per frame, no chrome. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photos</title>
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="site">
+  <h1>Your Name</h1>
+  <nav>
+    <a href="/">Tearsheets</a>
+    <a class="on" href="/grid.html">Photos</a>
+    <a href="/about.html">About</a>
+  </nav>
+</header>
+<main><div class="grid" id="grid"></div></main>
+<script type="module">
+  import { renderGrid } from "/assets/site.js";
+  renderGrid(document.getElementById("grid"));
+</script>
+</body>
+</html>

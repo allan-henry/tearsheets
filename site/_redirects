@@ -1,0 +1,7 @@
+# Created: 2026-08-25 09:55 MST (America/Phoenix)
+# Collection routes map to one collection.html (Milestone D). Stubbed now so links do not 404 later.
+/team/*    /collection.html   200
+/event/*   /collection.html   200
+/player/*  /collection.html   200
+/outlet/*  /collection.html   200
+/league/*  /collection.html   200

@@ -1,0 +1,103 @@
+<!doctype html>
+<!-- Created: 2026-08-25 09:55 MST (America/Phoenix)
+     tearsheets fixture harness. Drop raw SerpApi JSON into /fixtures with the names
+     below, open this page, read pass/fail. No API calls, ever. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parser tests, tearsheets</title>
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  .pass { color:#6fc276; } .fail { color:#e06c5a; }
+  li { margin: 4px 0; font-size: 14px; }
+  h2 { font-size: 15px; margin: 24px 0 8px; color: var(--ink-dim); }
+</style>
+</head>
+<body>
+<header class="site"><h1>Parser tests</h1></header>
+<main><ul id="out"></ul></main>
+<script type="module">
+import { extractResults, parseCaption, parseTitle, classifyDomain, orientationOf }
+  from "/assets/parsers.js";
+import { CONFIG } from "/config.js";
+
+const FIXTURES = [
+  { file: "news-imagn-tight",  engine: "news",   tight: true },
+  { file: "news-usats-tight",  engine: "news",   tight: true },
+  { file: "images-imagn-tight",engine: "images", tight: true },
+  { file: "web-usats-loose",   engine: "web",    tight: false },
+  { file: "news-uspw-tight",   engine: "news",   tight: true },
+];
+
+const out = document.getElementById("out");
+const t = (name, ok, detail = "") => out.insertAdjacentHTML("beforeend",
+  `<li class="${ok ? "pass" : "fail"}">${ok ? "PASS" : "FAIL"} · ${name}${detail ? " · " + detail : ""}</li>`);
+const h = (s) => out.insertAdjacentHTML("beforeend", `<h2>${s}</h2>`);
+
+// unit tests against the documented formats, run even with no fixtures present
+h("Unit: caption parser");
+const cap = parseCaption("Aug 11, 2026; Phoenix, Arizona, USA; Colorado Rockies third baseman Kyle Karros (12) at bat in the first inning of a game against the Arizona Diamondbacks.");
+t("event_date", cap?.event_date === "2026-08-11", cap?.event_date);
+t("location", cap?.location === "Phoenix, Arizona, USA", cap?.location);
+t("player anchor", cap?.player === "Kyle Karros", cap?.player);
+
+h("Unit: title parser");
+const tt = parseTitle("MLB: Colorado Rockies at Arizona Diamondbacks");
+t("league", tt?.league === "MLB");
+t("away", tt?.team_away === "Colorado Rockies");
+t("home", tt?.team_home === "Arizona Diamondbacks");
+const ev = parseTitle("PGA: WM Phoenix Open");
+t("individual sport event", ev?.event_name === "WM Phoenix Open", ev?.event_name);
+t("lohud 'test' title rejected", parseTitle("test") === null);
+
+h("Unit: domain classifier");
+t("vecteezy is stock", classifyDomain("vecteezy.com", CONFIG) === "stock");
+t("msn is distribution (a tearsheet)", classifyDomain("msn.com", CONFIG) === "distribution");
+t("instagram is social", classifyDomain("instagram.com", CONFIG) === "social");
+t("kenoshanews is publication", classifyDomain("kenoshanews.com", CONFIG) === "publication");
+
+h("Unit: orientation");
+t("3:2 landscape", orientationOf(3000, 2000) === "landscape");
+t("2:3 portrait", orientationOf(2000, 3000) === "portrait");
+t("1:1 square", orientationOf(1000, 1000) === "square");
+
+// fixture tests, skipped cleanly for files not yet committed
+for (const f of FIXTURES) {
+  h(`Fixture: ${f.file}`);
+  try {
+    const paths = [`/fixtures/${f.file}.json`];
+    let data = null;
+    for (const p of paths) {
+      const r = await fetch(p);
+      if (r.ok) { data = await r.json(); break; }
+    }
+    if (!data) { t("file present", false, "not committed yet, skipping"); continue; }
+    const results = extractResults(f.engine, data);
+    t("results extracted", results.length > 0, `${results.length} results`);
+    if (f.engine === "news") {
+      const caps = results.map((r) => parseCaption(r.snippet)).filter(Boolean);
+      t("captions parsed from at least one result", caps.length > 0, `${caps.length}`);
+      const titles = results.map((r) => parseTitle(r.title)).filter(Boolean);
+      t("titles parsed from at least one result", titles.length > 0, `${titles.length}`);
+      const dated = results.filter((r) => r.date);
+      t("dates present on most results", dated.length >= results.length * 0.6,
+        `${dated.length}/${results.length}`);
+    }
+    if (f.engine === "images") {
+      const dims = results.filter((r) => r.original_width && r.original_height);
+      t("dimensions present", dims.length > 0, `${dims.length}/${results.length}`);
+    }
+    if (!f.tight) {
+      const junk = results.filter((r) => {
+        const d = new URL(r.link).hostname.replace(/^www\./, "");
+        return classifyDomain(d, CONFIG) === "social";
+      });
+      t("loose fixture contains the expected junk (proves the flag path matters)",
+        true, `${junk.length} social results found`);
+    }
+  } catch (e) { t("fixture load", false, String(e)); }
+}
+</script>
+</body>
+</html>

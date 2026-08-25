@@ -1,0 +1,109 @@
+<!doctype html>
+<!-- Created: 2026-08-25 09:55 MST (America/Phoenix)
+     tearsheets merge/split review, behind Cloudflare Access on /review*.
+     Also the dhash engine: the browser decodes images and computes hashes,
+     then POSTs them to the Worker. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review, tearsheets admin</title>
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  .bar { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .bar button, .bar input { font:inherit; padding:8px 14px; background:var(--card);
+    color:var(--ink); border:1px solid var(--edge); }
+  .group { border:1px solid var(--edge); margin-bottom:16px; padding:12px; }
+  .group .thumbs { display:flex; gap:8px; flex-wrap:wrap; }
+  .group img { height:110px; }
+  .dist { font-size:12px; color:var(--ink-dim); }
+  .warn { color:#e6b34a; }
+  #log { font-size:12px; color:var(--ink-dim); white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<header class="site"><h1>Review</h1></header>
+<main>
+  <div class="bar">
+    <input id="token" type="password" placeholder="admin token" size="30">
+    <button id="hash">1. Hash unhashed images</button>
+    <button id="clusterDry">2. Cluster (dry run)</button>
+    <button id="clusterLive">3. Cluster (live)</button>
+    <button id="publish">4. Publish JSON</button>
+    <button id="sheets">Sheets sync</button>
+    <button id="load">Load frame groups</button>
+  </div>
+  <div id="log"></div>
+  <div id="groups"></div>
+</main>
+<script type="module">
+import { dhashFromImage, hamming } from "/assets/parsers.js";
+
+const WORKER = "/api"; // route the Worker under /api via its route pattern, or set an absolute URL
+const log = (m) => document.getElementById("log").textContent += m + "\n";
+const hdr = () => ({ "x-admin-token": document.getElementById("token").value });
+
+async function api(path, opts = {}) {
+  const r = await fetch(WORKER + path, { ...opts, headers: { ...hdr(), ...(opts.headers || {}) } });
+  const d = await r.json();
+  if (!r.ok) throw new Error(JSON.stringify(d));
+  return d;
+}
+
+document.getElementById("hash").onclick = async () => {
+  const rows = await api("/admin/unhashed");
+  log(`hashing ${rows.length} instances`);
+  const out = [];
+  for (const row of rows) {
+    const src = row.r2_key ? `/img/${row.id}/600.jpg` : row.thumbnail_url;
+    if (!src) continue;
+    try {
+      const img = await loadImage(src);
+      out.push({ id: row.id, dhash: dhashFromImage(img),
+        width: img.naturalWidth, height: img.naturalHeight });
+    } catch { log(`skip ${row.id}: image failed (likely hotlink block, wait for R2 fetch)`); }
+  }
+  const res = await api("/admin/hashes", { method: "POST",
+    headers: { "content-type": "application/json" }, body: JSON.stringify(out) });
+  log(`saved ${res.saved} hashes`);
+};
+
+document.getElementById("clusterDry").onclick = async () =>
+  log(JSON.stringify(await api("/admin/cluster?dry=1", { method: "POST" }), null, 2));
+document.getElementById("clusterLive").onclick = async () =>
+  log(JSON.stringify(await api("/admin/cluster", { method: "POST" }), null, 2));
+document.getElementById("publish").onclick = async () =>
+  log(JSON.stringify(await api("/admin/publish", { method: "POST" })));
+document.getElementById("sheets").onclick = async () =>
+  log(JSON.stringify(await api("/admin/sheets-sync", { method: "POST" })));
+
+document.getElementById("load").onclick = async () => {
+  const frames = await api("/admin/review");
+  const el = document.getElementById("groups");
+  el.innerHTML = frames.filter((f) => f.members.length > 1 ||
+      f.members.some((m) => m.distance > 2)).map((f) => `
+    <div class="group">
+      <div>frame ${f.frame_id} · ${f.members.length} placements
+        ${f.members.some((m) => m.distance >= 3) ? '<span class="warn">near threshold, eyeball this</span>' : ""}</div>
+      <div class="thumbs">${f.members.map((m) => `
+        <figure style="margin:0">
+          <img src="${m.thumb}" alt="">
+          <figcaption class="dist">${m.domain} d=${m.distance ?? "?"}</figcaption>
+        </figure>`).join("")}</div>
+      <div class="dist">${(f.caption || "").slice(0, 160)}</div>
+    </div>`).join("");
+  log(`${frames.length} frames loaded, showing multi-member and near-threshold groups`);
+};
+
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const i = new Image();
+    i.crossOrigin = "anonymous";
+    i.onload = () => res(i);
+    i.onerror = rej;
+    i.src = src;
+  });
+}
+</script>
+</body>
+</html>
