@@ -1,0 +1,339 @@
+{
+  "search_metadata": {
+    "id": "6a8e1c2fd868ddad31cc194d",
+    "status": "Success",
+    "json_endpoint": "https://serpapi.com/searches/6nYhKAjk5fNzRtxixTXXKw/6a8e1c2fd868ddad31cc194d.json",
+    "markdown_endpoint": "https://serpapi.com/searches/6nYhKAjk5fNzRtxixTXXKw/6a8e1c2fd868ddad31cc194d.md",
+    "pixel_position_endpoint": "https://serpapi.com/searches/6nYhKAjk5fNzRtxixTXXKw/6a8e1c2fd868ddad31cc194d.json_with_pixel_position",
+    "created_at": "2026-08-25 22:50:23 UTC",
+    "processed_at": "2026-08-25 22:50:23 UTC",
+    "google_url": "https://www.google.com/search?q=%22allan+henry%22+%22usa+today+sports%22&oq=%22allan+henry%22+%22usa+today+sports%22&hl=en&gl=us&sourceid=chrome&ie=UTF-8",
+    "raw_html_file": "https://serpapi.com/searches/6nYhKAjk5fNzRtxixTXXKw/6a8e1c2fd868ddad31cc194d.html",
+    "total_time_taken": 4.91
+  },
+  "search_parameters": {
+    "engine": "google",
+    "q": "\"allan henry\" \"usa today sports\"",
+    "google_domain": "google.com",
+    "hl": "en",
+    "gl": "us",
+    "device": "desktop"
+  },
+  "search_information": {
+    "query_displayed": "\"allan henry\" \"usa today sports\"",
+    "total_results": 5350,
+    "time_taken_displayed": 0.2,
+    "organic_results_state": "Results for exact spelling"
+  },
+  "related_questions": [
+    {
+      "question": "Is Allan Henry an actor?",
+      "type": "ai_overview",
+      "page_token": "nf1maHicHdBfboIwHADg7DI-zlbUBROzBKWiUdT--QF9WbAIaAtUZTJ92112qp1myb4jfN8_5lTr35e4bFt7m_T7Xde9Fk1TmOOraqp-envUqq9SYw6p0pPx2xi_52rq3zpv1nTeXlgLc4rYCQ-iOdVwJmsuyCZduBU3ZAdxuN1guKbYnimxMqpMS4PV-uCv7ooAC0UG8RMu_IQdCLKdjAGlKKQ8JvcDXy0zLi98IAchmIeY4SHziw4cK-QMryOwjHF5TzTdw1NqVss20e6AzsknxbYKgzKPtPugIJcMufxY02XsEMzj0tKzzwjCzVG4ZaYzxPToS9YeEuDVYiFzJXy0OK08GoSPbSRphtyImQTzej_kQG9rSJ4q3oyyc7kBbZPt3Di9XN2nTu9_bPqRV-3EXpviD-qVd_U",
+      "serpapi_ai_overview_link": "https://serpapi.com/search.json?engine=google_ai_overview&page_token=nf1maHicHdBfboIwHADg7DI-zlbUBROzBKWiUdT--QF9WbAIaAtUZTJ92112qp1myb4jfN8_5lTr35e4bFt7m_T7Xde9Fk1TmOOraqp-envUqq9SYw6p0pPx2xi_52rq3zpv1nTeXlgLc4rYCQ-iOdVwJmsuyCZduBU3ZAdxuN1guKbYnimxMqpMS4PV-uCv7ooAC0UG8RMu_IQdCLKdjAGlKKQ8JvcDXy0zLi98IAchmIeY4SHziw4cK-QMryOwjHF5TzTdw1NqVss20e6AzsknxbYKgzKPtPugIJcMufxY02XsEMzj0tKzzwjCzVG4ZaYzxPToS9YeEuDVYiFzJXy0OK08GoSPbSRphtyImQTzej_kQG9rSJ4q3oyyc7kBbZPt3Di9XN2nTu9_bPqRV-3EXpviD-qVd_U",
+      "next_page_token": "eyJvbnMiOiIxMDA0MSIsImZjIjoiRXFFQkNtSkJTbWxVTkhSTFRqbHNVSG81TFhSeVRFUnpVRjlTUldaRmFUVldWMHBXTTJaWVgzTnpUVEY0UjI0eVpVTjBVMVExVVZGU1MyRXdSbUYzVGpGb2ExaElNMVJ5Wms5Tk4wbDVVM2R4UTFSUVpUWktPVmt5VGpFd2J6VlFkMUIwU1dSaWR4SVhUV2g1VDJGMlIzUktUbkZtY0hSUlVHZFFabDl4UVRRYUlrRkVjM0k1WmxRM2FtSmpSRTVYTW5keGFETm1XbkpTWkdOMFNXWXRabWcxV21jIiwiZmN2IjoiMyIsImVpIjoiTWh5T2F2R3RKTnFmcHRRUGdQZl9xQTQiLCJxYyI6IkNoeGhiR3hoYmlCb1pXNXllU0IxYzJFZ2RHOWtZWGtnYzNCdmNuUnpFQUI5V2JJUFB3IiwicXVlc3Rpb24iOiJJcyBBbGxhbiBIZW5yeSBhbiBhY3Rvcj8iLCJsayI6IkdoRmhiR3hoYmlCb1pXNXllU0JoWTNSdmNnIiwiYnMiOiJjLVBTNTVMd0xGWnd6TWxKekZQd1NNMHJxbFFBTWhLVFNfS0w3STJFcFFRVHdSSVpFQW1RcUFBakFBIiwiaWQiOiJmY19NaHlPYXZHdEpOcWZwdFFQZ1BmX3FBNF8yIn0=",
+      "serpapi_link": "https://serpapi.com/search.json?device=desktop&engine=google_related_questions&google_domain=google.com&next_page_token=eyJvbnMiOiIxMDA0MSIsImZjIjoiRXFFQkNtSkJTbWxVTkhSTFRqbHNVSG81TFhSeVRFUnpVRjlTUldaRmFUVldWMHBXTTJaWVgzTnpUVEY0UjI0eVpVTjBVMVExVVZGU1MyRXdSbUYzVGpGb2ExaElNMVJ5Wms5Tk4wbDVVM2R4UTFSUVpUWktPVmt5VGpFd2J6VlFkMUIwU1dSaWR4SVhUV2g1VDJGMlIzUktUbkZtY0hSUlVHZFFabDl4UVRRYUlrRkVjM0k1WmxRM2FtSmpSRTVYTW5keGFETm1XbkpTWkdOMFNXWXRabWcxV21jIiwiZmN2IjoiMyIsImVpIjoiTWh5T2F2R3RKTnFmcHRRUGdQZl9xQTQiLCJxYyI6IkNoeGhiR3hoYmlCb1pXNXllU0IxYzJFZ2RHOWtZWGtnYzNCdmNuUnpFQUI5V2JJUFB3IiwicXVlc3Rpb24iOiJJcyBBbGxhbiBIZW5yeSBhbiBhY3Rvcj8iLCJsayI6IkdoRmhiR3hoYmlCb1pXNXllU0JoWTNSdmNnIiwiYnMiOiJjLVBTNTVMd0xGWnd6TWxKekZQd1NNMHJxbFFBTWhLVFNfS0w3STJFcFFRVHdSSVpFQW1RcUFBakFBIiwiaWQiOiJmY19NaHlPYXZHdEpOcWZwdFFQZ1BmX3FBNF8yIn0%3D"
+    }
+  ],
+  "ai_overview": {
+    "page_token": "XT8Yb3iczVXtcrI4FL6AvY6XP-0roFZrZ5h3QkwV16rxo7X9wyBgUMFYAiL9t_eyV7VXswFFsYN2uz92NjMmnuR4zpOc8_j88ae7WK_--s1xgmDDHkQxiqISoZS4dsmknmiweG2Kc-oy33R-Oa5irwXiKiETGA19015Yiun41LOFeKtUBJMpkmAvlCcn7hvbVtDpvc83AR6QwVx_B1UhDafoM4PZS55tt2SiLvJp9aPS5EaJlex16eX5w6xXpcl0_VoqS3Kj1BcNjzuA_2hADQMNqAAQvgBY6AIA-jIMSiJAnNvC6uGLetp72ueB-3iQXAqnIcBDYYB5bg7rCc4_xiYAzWP89mUkeQzq6wFLK5mSuLjoN4UDH-bs7lff4NJNtGSaZFb_7EwFhSOpwWvejUNoEjUCalYd7eSLM5yplR68pqGbtNkGFajRa6jBEAAzVjvwyg0OmB77aJNZMyDxHdEivE8lcebzRRYXpmOmX3yWtC8cNyT6iCv1CZrcN9QemrdceTNwNh2kk6GtY9GccT-XGpZt6Y4u_UptuSzfSY1K_f425Y3JjsRheeKwdrzc3tXiXkhK3ZIqZ6yBp8f5VGiC8eetZKDEHxcXV83xgb8OjtJNAo6VU7OAyNB4nFwMgrRBsrayjTYBKgXLzDwhIeACa47Hh5VTIumjBBEFJwy5pIhDOIY69QhoFpT2LEsSA0IQZQjO_DH49DoYDhM8mVPrdEI4hGECkMNAWpi2IwQkMs__V6BzjiWJrmnAOT13Bn5v93N3AR1tzwO1teLzKCmBxvOqGVT1gDU9OEurHcLmX5slSar__D8hP64zaz8QyOjxqdvzLGlr26BcjTT6sXPJ9H2JieYPw2mNDbWomBXUm31DT8z_D28OaoMPanOBN-gr3nD9INfVJu3OvdoguOcNJBd5g1Ch2kRHFPm75R8BwFGON85Vtfkeb1rXeEOOVyjgzaSYN51i3mRqk-MN6i7O1SbjzUltTrz5vtps_qXapDSy98u59IRLclGC2pXwvv40rby8jz239eYtqWP0x49hFHx8LUFzL3jwDMu91RfWg1ruBLF1q_MN-mBbwrvyo1w2XNdY3zj22o-5dcM_ITNuAmoZ8Q3bUD9gfEvwXJ8qknH30tDGqDnakR0tSyx8fNS2_bcuYnI421iy1_x90RtM7rrh82g3qoMeuYtgj3mtbdPRVeb1BsPx9Ge8C99-VqVR52PjtLUGpkZdpmp3Na-tYRzbwc9GFLX70_pTNLCn03lrBV2qU6NSmWzfmhP6POq6ixmvwzRFxRT7rcZq1rq2Gq0EzzcVXp0qAT0MXojKG_CV9y0BE4PyNeKdXQMYqQIzDd1mW8W0rXu5Nqs06jN7Vr2vCh4J4o3SkAS29hX5bxvOP6o",
+    "serpapi_link": "https://serpapi.com/search.json?engine=google_ai_overview&page_token=XT8Yb3iczVXtcrI4FL6AvY6XP-0roFZrZ5h3QkwV16rxo7X9wyBgUMFYAiL9t_eyV7VXswFFsYN2uz92NjMmnuR4zpOc8_j88ae7WK_--s1xgmDDHkQxiqISoZS4dsmknmiweG2Kc-oy33R-Oa5irwXiKiETGA19015Yiun41LOFeKtUBJMpkmAvlCcn7hvbVtDpvc83AR6QwVx_B1UhDafoM4PZS55tt2SiLvJp9aPS5EaJlex16eX5w6xXpcl0_VoqS3Kj1BcNjzuA_2hADQMNqAAQvgBY6AIA-jIMSiJAnNvC6uGLetp72ueB-3iQXAqnIcBDYYB5bg7rCc4_xiYAzWP89mUkeQzq6wFLK5mSuLjoN4UDH-bs7lff4NJNtGSaZFb_7EwFhSOpwWvejUNoEjUCalYd7eSLM5yplR68pqGbtNkGFajRa6jBEAAzVjvwyg0OmB77aJNZMyDxHdEivE8lcebzRRYXpmOmX3yWtC8cNyT6iCv1CZrcN9QemrdceTNwNh2kk6GtY9GccT-XGpZt6Y4u_UptuSzfSY1K_f425Y3JjsRheeKwdrzc3tXiXkhK3ZIqZ6yBp8f5VGiC8eetZKDEHxcXV83xgb8OjtJNAo6VU7OAyNB4nFwMgrRBsrayjTYBKgXLzDwhIeACa47Hh5VTIumjBBEFJwy5pIhDOIY69QhoFpT2LEsSA0IQZQjO_DH49DoYDhM8mVPrdEI4hGECkMNAWpi2IwQkMs__V6BzjiWJrmnAOT13Bn5v93N3AR1tzwO1teLzKCmBxvOqGVT1gDU9OEurHcLmX5slSar__D8hP64zaz8QyOjxqdvzLGlr26BcjTT6sXPJ9H2JieYPw2mNDbWomBXUm31DT8z_D28OaoMPanOBN-gr3nD9INfVJu3OvdoguOcNJBd5g1Ch2kRHFPm75R8BwFGON85Vtfkeb1rXeEOOVyjgzaSYN51i3mRqk-MN6i7O1SbjzUltTrz5vtps_qXapDSy98u59IRLclGC2pXwvv40rby8jz239eYtqWP0x49hFHx8LUFzL3jwDMu91RfWg1ruBLF1q_MN-mBbwrvyo1w2XNdY3zj22o-5dcM_ITNuAmoZ8Q3bUD9gfEvwXJ8qknH30tDGqDnakR0tSyx8fNS2_bcuYnI421iy1_x90RtM7rrh82g3qoMeuYtgj3mtbdPRVeb1BsPx9Ge8C99-VqVR52PjtLUGpkZdpmp3Na-tYRzbwc9GFLX70_pTNLCn03lrBV2qU6NSmWzfmhP6POq6ixmvwzRFxRT7rcZq1rq2Gq0EzzcVXp0qAT0MXojKG_CV9y0BE4PyNeKdXQMYqQIzDd1mW8W0rXu5Nqs06jN7Vr2vCh4J4o3SkAS29hX5bxvOP6o"
+  },
+  "organic_results": [
+    {
+      "position": 1,
+      "title": "Matt Shaw injury update | Allan Henry - USA Today Sports",
+      "link": "https://www.instagram.com/p/DbwfCoaoJwm/",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.instagram.com/p/DbwfCoaoJwm/&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECCcQAQ",
+      "displayed_link": "https://www.instagram.com › DbwfCoaoJwm",
+      "favicon": "https://serpapi.com/searches/6a8e1c2fd868ddad31cc194d/images/Rp73fm3aAl63Mi4ANMroeox2n2fxApQWE2xRbgQhSW8.png",
+      "snippet": "Matt Shaw injury update | Allan Henry - USA Today Sports | ⁣ --> Read more at CubsHQ.com <--. 3 hours ago. OCR. C CHC BALL STRIKE OUT SpringTraining.com ...",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "USA Today Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "Matt Shaw injury update | Allan Henry - USA Today Sports | ⁣ --> Read more at CubsHQ.com <--. 3 hours ago. OCR. C CHC BALL STRIKE OUT SpringTraining.com ...",
+          "source_info_link": "https://www.instagram.com/p/DbwfCoaoJwm/",
+          "icon": "https://serpapi.com/searches/6a8e1c2fd868ddad31cc194d/images/Rp73fm3aAl63Mi4ANMroevUhZ2TKi-w2qjrM6PBY-7DmPh1UlDisYS9pxEGKuySy.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://www.instagram.com/p/DbwfCoaoJwm/&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fwww.instagram.com%2Fp%2FDbwfCoaoJwm%2F",
+      "source": "Instagram",
+      "read_more_link": "https://www.instagram.com/p/DbwfCoaoJwm/#:~:text=Matt%20Shaw%20injury%20update%20%7C,SpringTraining.com%20ARIZONA%20380%20TWIN%20PEAKS"
+    },
+    {
+      "position": 2,
+      "title": "Licensable picture: USA TODAY Sports-Archive",
+      "link": "https://www.reutersconnect.com/item/usa-today-sports-archive/dGFnOnJldXRlcnMuY29tLDIwMTE6bmV3c21sX01UMVVTQVRPREFZNTM5NjYxMA",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.reutersconnect.com/item/usa-today-sports-archive/dGFnOnJldXRlcnMuY29tLDIwMTE6bmV3c21sX01UMVVTQVRPREFZNTM5NjYxMA&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECB4QAQ",
+      "displayed_link": "https://www.reutersconnect.com › item › usa-today-spo...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABwAAAAcBAMAAACAI8KnAAAAMFBMVEVHcEzWQADWQADWQADWQADWQADXPwDWQADWQADWQADWQADWQADWQADWQADWQADWQABbXiLsAAAAEHRSTlMAD-kwicsHYf8owHZJ2B-jYGILDAAAAO9JREFUeAFigAAhRUBBcADRQBQAAPRt3batZgsoBgMaoIAAE2MIAQgcgWFZwCisU_ZRGREBQ0CwAIDREIqBieAGBAiQCr1nB0Ar7g-jMAIIvdw4GyYAM5STzmEMLUAxjGU5AgAQzaOpcpIC99mb4hdqI9GVSthOOaNxHmW-oc4vcUZ-yi3grQl7MfiDWuw9BRfyTxoHMgC5RGMMcGc1sUEblK45gRnwAdUtwDOFdbuBU5TDSHtuM-GVlU5IvTRVeqgOPutLoBR6ypPcBJALA8AlVEMd8AD5n2XoYR9gLdS7i0IAqIRmf5h_BHCsuwD-AYDXPlFBZCIGAAAAAElFTkSuQmCC.png",
+      "snippet": "Allan Henry-USA TODAY Sports. City. Bethesda. Country Name. United States. Slug. GOLF. View More. Topics. Golf Golf North America Sport. Related content. Grid",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "USA TODAY Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "Allan Henry-USA TODAY Sports. City. Bethesda. Country Name. United States. Slug. GOLF. View More. Topics. Golf Golf North America Sport. Related content. Grid",
+          "source_info_link": "https://www.reutersconnect.com/item/usa-today-sports-archive/dGFnOnJldXRlcnMuY29tLDIwMTE6bmV3c21sX01UMVVTQVRPREFZNTM5NjYxMA",
+          "icon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABwAAAAcBAMAAACAI8KnAAAAMFBMVEVHcEzWQADWQADWQADWQADWQADXPwDWQADWQADWQADWQADWQADWQADWQADWQADWQABbXiLsAAAAEHRSTlMAD-kwicsHYf8owHZJ2B-jYGILDAAAAO9JREFUeAFigAAhRUBBcADRQBQAAPRt3batZgsoBgMaoIAAE2MIAQgcgWFZwCisU_ZRGREBQ0CwAIDREIqBieAGBAiQCr1nB0Ar7g-jMAIIvdw4GyYAM5STzmEMLUAxjGU5AgAQzaOpcpIC99mb4hdqI9GVSthOOaNxHmW-oc4vcUZ-yi3grQl7MfiDWuw9BRfyTxoHMgC5RGMMcGc1sUEblK45gRnwAdUtwDOFdbuBU5TDSHtuM-GVlU5IvTRVeqgOPutLoBR6ypPcBJALA8AlVEMd8AD5n2XoYR9gLdS7i0IAqIRmf5h_BHCsuwD-AYDXPlFBZCIGAAAAAElFTkSuQmCC.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://www.reutersconnect.com/item/usa-today-sports-archive/dGFnOnJldXRlcnMuY29tLDIwMTE6bmV3c21sX01UMVVTQVRPREFZNTM5NjYxMA&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fwww.reutersconnect.com%2Fitem%2Fusa-today-sports-archive%2FdGFnOnJldXRlcnMuY29tLDIwMTE6bmV3c21sX01UMVVTQVRPREFZNTM5NjYxMA",
+      "source": "Reuters Connect"
+    },
+    {
+      "position": 3,
+      "title": "USA - The WNBA and its players union enter a sixth day ...",
+      "link": "https://www.facebook.com/usatodaysports/photos/the-wnba-and-its-players-union-enter-a-sixth-day-of-marathon-meetings-with-no-de/1496168695202273/",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.facebook.com/usatodaysports/photos/the-wnba-and-its-players-union-enter-a-sixth-day-of-marathon-meetings-with-no-de/1496168695202273/&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECCAQAQ",
+      "displayed_link": "2 reactions · 5 months ago",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y-mAAAAXVBMVEVHcEwHZv8HaP8IZ_8IZ_8IZv8IaP8IZ_8HZv8Haf8IZ_8IaP8IZ_8AXv8AV_8AYv-SqP_P1__m6__e5f9wlP____-tvP9jiv82c_8IZ_8Iaf-fsf________8AW_-wrobhAAAAH3RSTlMAM4bC6v1h7v8Z3UL_______7_________wRiFwenBhp_Z0gAAAOhJREFUeAFtk0UWwzAMBWWHFHOZe_9bBn9Nr7Mdg5AiQjZt17WNFFTTDxwZ-kKNigvUmJw2XGF0dByx1jlnPTPDjiYqDofj8XQ4L9bsL6vozpedq13_3eJk4G-XXPIac8zBHUs5EIl48Q4Tws3ziiAZ5f7j3Vq7O5b0iOGE1Z0cRxpqS3mwSbbU4VHndukW8GwHiQ_BzUO2KceIw7MIqJBHyIZk_WwKSv6KcD_frlsqt_P5joBELJ-3iNZD8YDC_82zz1pWS5U1u5bmmY1JLdMQmVoaOIxmIdVYDXWUxVAD8Xp_FvnN1mEG0f0e5ixC4ikAAAAASUVORK5CYII.png",
+      "snippet": "See link below ⬇️ Allan Henry, Allan Henry-Imagn Images. 󰤥 2 ... 󰤦 2 · USA TODAY Sports 󱙄. 1h· 󰟠. 󳄫. Egypt fans in Atlanta are so ...",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "Allan Henry",
+        "USA TODAY Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "See link below ⬇️ Allan Henry, Allan Henry-Imagn Images. 󰤥 2 ... 󰤦 2 · USA TODAY Sports 󱙄. 1h· 󰟠. 󳄫. Egypt fans in Atlanta are so ...",
+          "source_info_link": "https://www.facebook.com/usatodaysports/photos/the-wnba-and-its-players-union-enter-a-sixth-day-of-marathon-meetings-with-no-de/1496168695202273/",
+          "icon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y-mAAAAXVBMVEVHcEwHZv8HaP8IZ_8IZ_8IZv8IaP8IZ_8HZv8Haf8IZ_8IaP8IZ_8AXv8AV_8AYv-SqP_P1__m6__e5f9wlP____-tvP9jiv82c_8IZ_8Iaf-fsf________8AW_-wrobhAAAAH3RSTlMAM4bC6v1h7v8Z3UL_______7_________wRiFwenBhp_Z0gAAAOhJREFUeAFtk0UWwzAMBWWHFHOZe_9bBn9Nr7Mdg5AiQjZt17WNFFTTDxwZ-kKNigvUmJw2XGF0dByx1jlnPTPDjiYqDofj8XQ4L9bsL6vozpedq13_3eJk4G-XXPIac8zBHUs5EIl48Q4Tws3ziiAZ5f7j3Vq7O5b0iOGE1Z0cRxpqS3mwSbbU4VHndukW8GwHiQ_BzUO2KceIw7MIqJBHyIZk_WwKSv6KcD_frlsqt_P5joBELJ-3iNZD8YDC_82zz1pWS5U1u5bmmY1JLdMQmVoaOIxmIdVYDXWUxVAD8Xp_FvnN1mEG0f0e5ixC4ikAAAAASUVORK5CYII.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://www.facebook.com/usatodaysports/photos/the-wnba-and-its-players-union-enter-a-sixth-day-of-marathon-meetings-with-no-de/1496168695202273/&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fwww.facebook.com%2Fusatodaysports%2Fphotos%2Fthe-wnba-and-its-players-union-enter-a-sixth-day-of-marathon-meetings-with-no-de%2F1496168695202273%2F",
+      "source": "Facebook · USA TODAY Sports",
+      "read_more_link": "https://www.facebook.com/usatodaysports/photos/the-wnba-and-its-players-union-enter-a-sixth-day-of-marathon-meetings-with-no-de/1496168695202273/#:~:text=See%20link%20below%20%E2%AC%87%EF%B8%8F%20%F0%9F%93%B8,%F3%B0%A4%A5%202&text=%F3%B0%A4%A6%202,in%20the%20Round%20of%2016."
+    },
+    {
+      "position": 4,
+      "title": "Allan Henry | @allanhenry Atlas Packs Ambassador",
+      "link": "https://atlaspacks.com/pages/ambassadors/allanhenry?srsltid=AfmBOoq-bpIGl1wkqLv16eCGXqNIPGfZaFs7lOMYNa3fs5Dtth_06DeF",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://atlaspacks.com/pages/ambassadors/allanhenry%3Fsrsltid%3DAfmBOoq-bpIGl1wkqLv16eCGXqNIPGfZaFs7lOMYNa3fs5Dtth_06DeF&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECBwQAQ",
+      "displayed_link": "https://atlaspacks.com › pages › ambassadors › allanhenry",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAAAAABWESUoAAABEElEQVR4AYWOIWzCQBhGn0ZjJucFCoOpnZ4PBoMPet4i5jOBnMaQkNSLqfomVXUVJFXft_QKl93ope9y7v0vH57hWVD4eUHubzNCebSUFSSv6Z0X7B_4spQRpH4Lq8ZZYQg8Eomg8ckFA_ovKORlVwROllJB7XEw-h2BdetEkHymeyxIElFY8mH5jQf6K0i-wKp2ReTbidANp5_eE9m0Y4IYgLJaQJqIwguw9zuRuAIP4jUEaiBN6F7ohtMiLogrHARpDFzrBROJILwCu7AgZRTsEuDSABMJpNtwuvGBJ4rWQi7HBUsmE4wLtt4yhcV9QcskZxMWrH1gkqLjHAIVGU60ddM0busMDZ4BDVhZZgu_UO56KQ3y_NMAAAAASUVORK5CYII.png",
+      "snippet": "I'm Allan Henry, a professional sports photojournalist with USA Today Sports and co-founder of Atlas Packs. With over a decade of experience capturing ...",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "USA Today Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "I'm Allan Henry, a professional sports photojournalist with USA Today Sports and co-founder of Atlas Packs. With over a decade of experience capturing ...",
+          "source_info_link": "https://atlaspacks.com/pages/ambassadors/allanhenry?srsltid=AfmBOoq-bpIGl1wkqLv16eCGXqNIPGfZaFs7lOMYNa3fs5Dtth_06DeF",
+          "icon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAAAAABWESUoAAABEElEQVR4AYWOIWzCQBhGn0ZjJucFCoOpnZ4PBoMPet4i5jOBnMaQkNSLqfomVXUVJFXft_QKl93ope9y7v0vH57hWVD4eUHubzNCebSUFSSv6Z0X7B_4spQRpH4Lq8ZZYQg8Eomg8ckFA_ovKORlVwROllJB7XEw-h2BdetEkHymeyxIElFY8mH5jQf6K0i-wKp2ReTbidANp5_eE9m0Y4IYgLJaQJqIwguw9zuRuAIP4jUEaiBN6F7ohtMiLogrHARpDFzrBROJILwCu7AgZRTsEuDSABMJpNtwuvGBJ4rWQi7HBUsmE4wLtt4yhcV9QcskZxMWrH1gkqLjHAIVGU60ddM0busMDZ4BDVhZZgu_UO56KQ3y_NMAAAAASUVORK5CYII.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://atlaspacks.com/pages/ambassadors/allanhenry?srsltid=AfmBOoq-bpIGl1wkqLv16eCGXqNIPGfZaFs7lOMYNa3fs5Dtth_06DeF&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fatlaspacks.com%2Fpages%2Fambassadors%2Fallanhenry%3Fsrsltid%3DAfmBOoq-bpIGl1wkqLv16eCGXqNIPGfZaFs7lOMYNa3fs5Dtth_06DeF",
+      "source": "AtlasPacks",
+      "read_more_link": "https://atlaspacks.com/pages/ambassadors/allanhenry?srsltid=AfmBOoq-bpIGl1wkqLv16eCGXqNIPGfZaFs7lOMYNa3fs5Dtth_06DeF#:~:text=I'm%20Allan%20Henry%2C%20a%20professional,a%20decade%20of%20experience%20capturing"
+    },
+    {
+      "position": 5,
+      "title": "Allan Henry - Outsiders Photography Conference Kanab 2022",
+      "link": "https://outsiderskanaba.sched.com/sponsor/allan_henry.23kn9oeh",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://outsiderskanaba.sched.com/sponsor/allan_henry.23kn9oeh&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECCEQAQ",
+      "displayed_link": "https://outsiderskanaba.sched.com › allan_henry.23kn9oeh",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAANlBMVEVHcEwDBgYEBwcEBwcEBwcDBgYDBgYEBwcEBwcEBgYEBwcCBgYDBwcEBwcEBwcEBwcEBwcEBwfY19OgAAAAEnRSTlMAPpnf-i4c_8xeeRBL8LqNZKpywZwUAAAA2UlEQVR4AX3SUQ6DIBAE0FkABgVE73_ZNkIgxbXvz8xmILJ4EGOds8ZDFyy7GKAQToKnwGmDwnLYkZ73yBwMhCxYHCM_INo1Rh7he48-UBB60ctAxfF_YEOhekRk48EmY0o1ppPN2UcdJn-f6NgDvxS0doFns9_fdck9smOH8PsY6e7LHHZs6_V3eE7u8QYX0kglpceWRKDMfiwcCxA51CWvZMD1Z5cyHTZ-WTYBC7HYSdbeUqC5isG6zfrGWgOFeF_Htmo4XNCc6y9YFTZFoJKWXhkvsnUGbz5fpQ1CjfLeegAAAABJRU5ErkJggg.png",
+      "snippet": "Allan Henry. Atlas Packs. General Manager. Phoenix. https://atlaspacks.com ... In 2008, I started my career as a photojournalist with USA Today Sports. Out ...",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "USA Today Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "Allan Henry. Atlas Packs. General Manager. Phoenix. https://atlaspacks.com ... In 2008, I started my career as a photojournalist with USA Today Sports. Out ...",
+          "source_info_link": "https://outsiderskanaba.sched.com/sponsor/allan_henry.23kn9oeh",
+          "icon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAANlBMVEVHcEwDBgYEBwcEBwcEBwcDBgYDBgYEBwcEBwcEBgYEBwcCBgYDBwcEBwcEBwcEBwcEBwcEBwfY19OgAAAAEnRSTlMAPpnf-i4c_8xeeRBL8LqNZKpywZwUAAAA2UlEQVR4AX3SUQ6DIBAE0FkABgVE73_ZNkIgxbXvz8xmILJ4EGOds8ZDFyy7GKAQToKnwGmDwnLYkZ73yBwMhCxYHCM_INo1Rh7he48-UBB60ctAxfF_YEOhekRk48EmY0o1ppPN2UcdJn-f6NgDvxS0doFns9_fdck9smOH8PsY6e7LHHZs6_V3eE7u8QYX0kglpceWRKDMfiwcCxA51CWvZMD1Z5cyHTZ-WTYBC7HYSdbeUqC5isG6zfrGWgOFeF_Htmo4XNCc6y9YFTZFoJKWXhkvsnUGbz5fpQ1CjfLeegAAAABJRU5ErkJggg.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://outsiderskanaba.sched.com/sponsor/allan_henry.23kn9oeh&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Foutsiderskanaba.sched.com%2Fsponsor%2Fallan_henry.23kn9oeh",
+      "source": "Sched",
+      "read_more_link": "https://outsiderskanaba.sched.com/sponsor/allan_henry.23kn9oeh#:~:text=Allan%20Henry,https%3A%2F%2Fatlaspacks.com%2F&text=In%202008%2C%20I%20started%20my,with%20USA%20Today%20Sports.%20Out"
+    },
+    {
+      "position": 6,
+      "title": "Sunday at the Presidents Cup",
+      "link": "https://www.usatoday.com/picture-gallery/sports/golf/2013/10/06/sunday-at-the-presidents-cup/2931091/",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.usatoday.com/picture-gallery/sports/golf/2013/10/06/sunday-at-the-presidents-cup/2931091/&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECDYQAQ",
+      "displayed_link": "https://www.usatoday.com › sports › golf › 2013/10/06",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAMFBMVEUAAAAAmP8Am_8Am_8Am_8Amv8Am_8Amv8Amv9Ctf-t3_-M0v_d8v8jqf9mw__5_f9BtQJnAAAACXRSTlMACleaze3_J4l9gm32AAABEUlEQVR4AWIAAyGTsFRnRQY4KA5LA4JUcxhfIg0KGiF8dkCZ5AqyMBTF8Qtfb5-9mU12i92i3cfB6TYs9mZPgorctiLDNvBVLQ7XLqjgmqCoy1fd9LiLL84Jl8uP8_6f7AuUGzFowtsKsUP-AypPl3_4sgyC1jeoYgT8WIP9_YIUS0BXs6a2aSuQY0k4mjKa6QsFiiyNIPRsHihQYlkI6vPVYui1VbMsD_p978pobanWGD4CjE8ZBL2Jc3A2E1F3zuYOMGR77S1dfzz3JeftCiaFSHc478vxoHbBpOknsAK_E7qeJrFsEoF2i3xvJPkpxMYScRVhCBAG_nJ0ODI-WRBdIVkykYEKRaR8iQ2x2OQcHiTJyVp__PD0AAAAAElFTkSuQmCC.png",
+      "date": "Oct 6, 2013",
+      "snippet": "Jordan Spieth and Tiger Woods celebrate after winning the Presidents Cup at Muirfield Village Golf Club. Allan Henry USA TODAY Sports. Tiger ...",
+      "snippet_highlighted_words": [
+        "Allan Henry USA TODAY Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "Jordan Spieth and Tiger Woods celebrate after winning the Presidents Cup at Muirfield Village Golf Club. Allan Henry USA TODAY Sports. Tiger ...",
+          "source_info_link": "https://www.usatoday.com/picture-gallery/sports/golf/2013/10/06/sunday-at-the-presidents-cup/2931091/",
+          "icon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAMFBMVEUAAAAAmP8Am_8Am_8Am_8Amv8Am_8Amv8Amv9Ctf-t3_-M0v_d8v8jqf9mw__5_f9BtQJnAAAACXRSTlMACleaze3_J4l9gm32AAABEUlEQVR4AWIAAyGTsFRnRQY4KA5LA4JUcxhfIg0KGiF8dkCZ5AqyMBTF8Qtfb5-9mU12i92i3cfB6TYs9mZPgorctiLDNvBVLQ7XLqjgmqCoy1fd9LiLL84Jl8uP8_6f7AuUGzFowtsKsUP-AypPl3_4sgyC1jeoYgT8WIP9_YIUS0BXs6a2aSuQY0k4mjKa6QsFiiyNIPRsHihQYlkI6vPVYui1VbMsD_p978pobanWGD4CjE8ZBL2Jc3A2E1F3zuYOMGR77S1dfzz3JeftCiaFSHc478vxoHbBpOknsAK_E7qeJrFsEoF2i3xvJPkpxMYScRVhCBAG_nJ0ODI-WRBdIVkykYEKRaR8iQ2x2OQcHiTJyVp__PD0AAAAAElFTkSuQmCC.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://www.usatoday.com/picture-gallery/sports/golf/2013/10/06/sunday-at-the-presidents-cup/2931091/&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fwww.usatoday.com%2Fpicture-gallery%2Fsports%2Fgolf%2F2013%2F10%2F06%2Fsunday-at-the-presidents-cup%2F2931091%2F",
+      "source": "USA Today",
+      "read_more_link": "https://www.usatoday.com/picture-gallery/sports/golf/2013/10/06/sunday-at-the-presidents-cup/2931091/#:~:text=Jordan%20Spieth%20and%20Tiger%20Woods,at%20Muirfield%20Village%20Golf%20Club."
+    },
+    {
+      "position": 7,
+      "title": "Tier-Ranking Every Suns Player",
+      "link": "https://www.si.com/nba/suns/onsi/analysis/tier-ranking-every-phoenix-suns-player",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.si.com/nba/suns/onsi/analysis/tier-ranking-every-phoenix-suns-player&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECDcQAQ",
+      "displayed_link": "https://www.si.com › Home › Analysis",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y-mAAAAY1BMVEUAAABgYGCxsbHc3Nz29vbp6enLy8uPj487OzodHR2YmJd_f38oKCgODg76-vr___-7u7oYGBcmJiZLS0vi4uL39_ehoaFJSUjR0dHGxsYzMzJmZmaIiIhsbGtTU1Ls7OtbW1r6SFYVAAAAxklEQVR4AdWQhQEDIRAED7d3d-i_yiCRlwoyr9wgC_CHIEyoh3EhfUsJ7TEZeHJRlD-qGprYZi14RKrSro_fARoavt3onZxirRhq_h56kmMXa72AOf7wRZ0kKVOxXY3Ztm1Xp5HLnGTBSLUt4DlJMOWXou_2s_QcpP_5c9pEpqfOFklO4ymQcuuKnEOoSrZDJym5ZYxZDkfaE1vrxyEwiVj8IcdpJAwpaMfStFV-DrTg8sQ0ng8-aD33NECGI0TElWdY4L94AcE0FjpEBIcaAAAAAElFTkSuQmCC.png",
+      "date": "Aug 31, 2024",
+      "snippet": "Mandatory Credit: Allan Henry-USA TODAY Sports | Allan Henry-USA TODAY Sports. In this story: Phoenix Suns. PHOENIX -- The Phoenix Suns are ...",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "USA TODAY Sports",
+        "Allan Henry",
+        "USA TODAY Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "Mandatory Credit: Allan Henry-USA TODAY Sports | Allan Henry-USA TODAY Sports. In this story: Phoenix Suns. PHOENIX -- The Phoenix Suns are ...",
+          "source_info_link": "https://www.si.com/nba/suns/onsi/analysis/tier-ranking-every-phoenix-suns-player",
+          "icon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y-mAAAAY1BMVEUAAABgYGCxsbHc3Nz29vbp6enLy8uPj487OzodHR2YmJd_f38oKCgODg76-vr___-7u7oYGBcmJiZLS0vi4uL39_ehoaFJSUjR0dHGxsYzMzJmZmaIiIhsbGtTU1Ls7OtbW1r6SFYVAAAAxklEQVR4AdWQhQEDIRAED7d3d-i_yiCRlwoyr9wgC_CHIEyoh3EhfUsJ7TEZeHJRlD-qGprYZi14RKrSro_fARoavt3onZxirRhq_h56kmMXa72AOf7wRZ0kKVOxXY3Ztm1Xp5HLnGTBSLUt4DlJMOWXou_2s_QcpP_5c9pEpqfOFklO4ymQcuuKnEOoSrZDJym5ZYxZDkfaE1vrxyEwiVj8IcdpJAwpaMfStFV-DrTg8sQ0ng8-aD33NECGI0TElWdY4L94AcE0FjpEBIcaAAAAAElFTkSuQmCC.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://www.si.com/nba/suns/onsi/analysis/tier-ranking-every-phoenix-suns-player&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fwww.si.com%2Fnba%2Fsuns%2Fonsi%2Fanalysis%2Ftier-ranking-every-phoenix-suns-player",
+      "source": "Sports Illustrated",
+      "read_more_link": "https://www.si.com/nba/suns/onsi/analysis/tier-ranking-every-phoenix-suns-player#:~:text=Mandatory%20Credit%3A%20Allan%20Henry%2DUSA%20TODAY,against%20the%20Los%20Angeles%20Lakers."
+    },
+    {
+      "position": 8,
+      "title": "Removing The Paywall & New Ways To Support This Site",
+      "link": "https://steelesportsbar.substack.com/p/removing-the-paywall-and-new-ways-to-support",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://steelesportsbar.substack.com/p/removing-the-paywall-and-new-ways-to-support&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECD4QAQ",
+      "displayed_link": "2 likes · 2 years ago",
+      "favicon": "https://serpapi.com/images/i/_9j_4AAQSkZJRgABAQAAAQABAAD_2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kHTQsJCYxJx8fLT0tMTU3Ojo6Iys_RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3NTc3Nzc3Nzc3Nzc3Nys3Nzc3Nzc3Nzc3Nzc1Kzc3Nzc3NTctNTcuMzc3NzcwNf_AABEIABwAHAMBIgACEQEDEQH_xAAZAAACAwEAAAAAAAAAAAAAAAAFBgECBwT_xAAoEAABBAEDAQgDAAAAAAAAAAABAgMEEQAFBhIhEyIxMkFhYpIVM1H_xAAYAQACAwAAAAAAAAAAAAAAAAABAgMEBf_EACIRAAIBAQgDAAAAAAAAAAAAAAECAAMEERMhUaHB8BQxQf_aAAwDAQACEQMRAD8AzC7PjkXmjR9Cgytu6T-RcnKTIVHbS4hCQpBcugCtvyg_wnp6C854Wy9KnJhuRvzCmZTbjna0kpa4qI4rpvxPHpVnr5cy8RR7lPx2-RBvLXjkdkqenaYiLF1VqLJWRKVIbHKOAU-JCaF8rF9aI6emL25YDelT0x2WJjKS3yqaAFK7xHJNJHdNdLAOEENkJG1JlF5hdG6YAiMMO7fjKW2hKVOBQBUoCioDgaJ8clG69PQlQG3o4BugFppJtRsDs_kPqMVyOuVxMJNNzHFpqdEbHN3QVuuLG3o6ErWFcErTQ8nT9fwP2OC9a1pOoSUOxNPiw0JbCSjs0ucjZPKyn3qvbBFZasIpquY5ivaKjC4mf__Z.jpeg",
+      "snippet": "... (Allan Henry - USA TODAY SPORTS). Hello, Steele Sports Bar Patrons! I just wanted to jump on and update you on a big change I've introduced to ...",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "USA TODAY SPORTS"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "... (Allan Henry - USA TODAY SPORTS). Hello, Steele Sports Bar Patrons! I just wanted to jump on and update you on a big change I've introduced to ...",
+          "source_info_link": "https://steelesportsbar.substack.com/p/removing-the-paywall-and-new-ways-to-support",
+          "icon": "https://serpapi.com/images/i/_9j_4AAQSkZJRgABAQAAAQABAAD_2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kHTQsJCYxJx8fLT0tMTU3Ojo6Iys_RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3NTc3Nzc3Nzc3Nzc3Nys3Nzc3Nzc3Nzc3Nzc1Kzc3Nzc3NTctNTcuMzc3NzcwNf_AABEIABwAHAMBIgACEQEDEQH_xAAZAAACAwEAAAAAAAAAAAAAAAAFBgECBwT_xAAoEAABBAEDAQgDAAAAAAAAAAABAgMEEQAFBhIhEyIxMkFhYpIVM1H_xAAYAQACAwAAAAAAAAAAAAAAAAABAgMEBf_EACIRAAIBAQgDAAAAAAAAAAAAAAECAAMEERMhUaHB8BQxQf_aAAwDAQACEQMRAD8AzC7PjkXmjR9Cgytu6T-RcnKTIVHbS4hCQpBcugCtvyg_wnp6C854Wy9KnJhuRvzCmZTbjna0kpa4qI4rpvxPHpVnr5cy8RR7lPx2-RBvLXjkdkqenaYiLF1VqLJWRKVIbHKOAU-JCaF8rF9aI6emL25YDelT0x2WJjKS3yqaAFK7xHJNJHdNdLAOEENkJG1JlF5hdG6YAiMMO7fjKW2hKVOBQBUoCioDgaJ8clG69PQlQG3o4BugFppJtRsDs_kPqMVyOuVxMJNNzHFpqdEbHN3QVuuLG3o6ErWFcErTQ8nT9fwP2OC9a1pOoSUOxNPiw0JbCSjs0ucjZPKyn3qvbBFZasIpquY5ivaKjC4mf__Z.jpeg"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://steelesportsbar.substack.com/p/removing-the-paywall-and-new-ways-to-support&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fsteelesportsbar.substack.com%2Fp%2Fremoving-the-paywall-and-new-ways-to-support",
+      "source": "Substack · The Steele Sports Bar",
+      "read_more_link": "https://steelesportsbar.substack.com/p/removing-the-paywall-and-new-ways-to-support#:~:text=Allan%20Henry%20%2D%20USA%20TODAY,over%20the%20last%20few%20days."
+    },
+    {
+      "position": 9,
+      "title": "Cubs vs. Mariners Friday Game Threads",
+      "link": "https://www.bleedcubbieblue.com/2017/3/10/14818666/cubs-mariners-peoria",
+      "redirect_link": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.bleedcubbieblue.com/2017/3/10/14818666/cubs-mariners-peoria&ved=2ahUKEwjxjozu7ryWAxXaj4kEHYD7H-UQFnoECDUQAQ",
+      "displayed_link": "https://www.bleedcubbieblue.com › cubs-mariners-peoria",
+      "favicon": "https://serpapi.com/searches/6a8e1c2fd868ddad31cc194d/images/Rp73fm3aAl63Mi4ANMroemCDLAlx1VuOLf6Xjw42_7g.png",
+      "date": "Mar 10, 2017",
+      "snippet": "Mariners, Friday 3/10, 2:10 CT. Allan Henry-USA TODAY Sports. Go get 'em, Kyle. Read Article >. Active Articles. Ranked by most activity in ...",
+      "snippet_highlighted_words": [
+        "Allan Henry",
+        "USA TODAY Sports"
+      ],
+      "about_this_result": {
+        "source": {
+          "description": "Mariners, Friday 3/10, 2:10 CT. Allan Henry-USA TODAY Sports. Go get 'em, Kyle. Read Article >. Active Articles. Ranked by most activity in ...",
+          "source_info_link": "https://www.bleedcubbieblue.com/2017/3/10/14818666/cubs-mariners-peoria",
+          "icon": "https://serpapi.com/searches/6a8e1c2fd868ddad31cc194d/images/Rp73fm3aAl63Mi4ANMroelGIbAbMjo_h7WMv1E_uOYAEscP9Yq4Z8ux0uNqUnfTQ.png"
+        },
+        "languages": [
+          "en"
+        ],
+        "regions": [
+          "US"
+        ]
+      },
+      "about_page_link": "https://www.google.com/search?q=About+https://www.bleedcubbieblue.com/2017/3/10/14818666/cubs-mariners-peoria&tbm=ilp",
+      "about_page_serpapi_link": "https://serpapi.com/search.json?engine=google_about_this_result&google_domain=google.com&q=About+https%3A%2F%2Fwww.bleedcubbieblue.com%2F2017%2F3%2F10%2F14818666%2Fcubs-mariners-peoria",
+      "source": "Bleed Cubbie Blue",
+      "read_more_link": "https://www.bleedcubbieblue.com/2017/3/10/14818666/cubs-mariners-peoria#:~:text=Mariners%2C%20Friday%203%2F10%2C%202%3A10%20CT,Read%20Article%20%3E"
+    }
+  ],
+  "pagination": {
+    "current": 1,
+    "next": "https://www.google.com/search?q=%22allan+henry%22+%22usa+today+sports%22&oq=%22allan+henry%22+%22usa+today+sports%22&hl=en&gl=us&start=10&sourceid=chrome&ie=UTF-8",
+    "other_pages": {
+      "2": "https://www.google.com/search?q=%22allan+henry%22+%22usa+today+sports%22&oq=%22allan+henry%22+%22usa+today+sports%22&hl=en&gl=us&start=10&sourceid=chrome&ie=UTF-8",
+      "3": "https://www.google.com/search?q=%22allan+henry%22+%22usa+today+sports%22&oq=%22allan+henry%22+%22usa+today+sports%22&hl=en&gl=us&start=20&sourceid=chrome&ie=UTF-8",
+      "4": "https://www.google.com/search?q=%22allan+henry%22+%22usa+today+sports%22&oq=%22allan+henry%22+%22usa+today+sports%22&hl=en&gl=us&start=30&sourceid=chrome&ie=UTF-8",
+      "5": "https://www.google.com/search?q=%22allan+henry%22+%22usa+today+sports%22&oq=%22allan+henry%22+%22usa+today+sports%22&hl=en&gl=us&start=40&sourceid=chrome&ie=UTF-8"
+    }
+  },
+  "serpapi_pagination": {
+    "current": 1,
+    "next_link": "https://serpapi.com/search.json?device=desktop&engine=google&gl=us&google_domain=google.com&hl=en&q=%22allan+henry%22+%22usa+today+sports%22&start=10",
+    "next": "https://serpapi.com/search.json?device=desktop&engine=google&gl=us&google_domain=google.com&hl=en&q=%22allan+henry%22+%22usa+today+sports%22&start=10",
+    "other_pages": {
+      "2": "https://serpapi.com/search.json?device=desktop&engine=google&gl=us&google_domain=google.com&hl=en&q=%22allan+henry%22+%22usa+today+sports%22&start=10",
+      "3": "https://serpapi.com/search.json?device=desktop&engine=google&gl=us&google_domain=google.com&hl=en&q=%22allan+henry%22+%22usa+today+sports%22&start=20",
+      "4": "https://serpapi.com/search.json?device=desktop&engine=google&gl=us&google_domain=google.com&hl=en&q=%22allan+henry%22+%22usa+today+sports%22&start=30",
+      "5": "https://serpapi.com/search.json?device=desktop&engine=google&gl=us&google_domain=google.com&hl=en&q=%22allan+henry%22+%22usa+today+sports%22&start=40"
+    }
+  }
+}

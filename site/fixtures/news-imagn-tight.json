@@ -1,0 +1,141 @@
+{
+  "search_metadata": {
+    "id": "6a8e1a13874d5056b5f882f6",
+    "status": "Success",
+    "json_endpoint": "https://serpapi.com/searches/EIP5dYMsd8v3t1gOmqw2Iw/6a8e1a13874d5056b5f882f6.json",
+    "markdown_endpoint": "https://serpapi.com/searches/EIP5dYMsd8v3t1gOmqw2Iw/6a8e1a13874d5056b5f882f6.md",
+    "pixel_position_endpoint": "https://serpapi.com/searches/EIP5dYMsd8v3t1gOmqw2Iw/6a8e1a13874d5056b5f882f6.json_with_pixel_position",
+    "created_at": "2026-08-25 22:41:23 UTC",
+    "processed_at": "2026-08-25 22:41:23 UTC",
+    "google_url": "https://www.google.com/search?q=%22allan+henry-imagn+images%22&oq=%22allan+henry-imagn+images%22&hl=en&gl=us&tbm=nws&sourceid=chrome&ie=UTF-8",
+    "raw_html_file": "https://serpapi.com/searches/EIP5dYMsd8v3t1gOmqw2Iw/6a8e1a13874d5056b5f882f6.html",
+    "total_time_taken": 1.27
+  },
+  "search_parameters": {
+    "engine": "google",
+    "q": "\"allan henry-imagn images\"",
+    "google_domain": "google.com",
+    "hl": "en",
+    "gl": "us",
+    "device": "desktop",
+    "tbm": "nws"
+  },
+  "search_information": {
+    "query_displayed": "\"allan henry-imagn images\"",
+    "total_results": 641,
+    "time_taken_displayed": 0.22,
+    "news_results_state": "Results for exact spelling"
+  },
+  "news_results": [
+    {
+      "position": 1,
+      "link": "https://www.reutersconnect.com/item/wnba-atlanta-dream-at-phoenix-mercury/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX01UMVVTQVRPREFZMjk2NDcxMDE",
+      "title": "WNBA: Atlanta Dream at Phoenix Mercury",
+      "source": "Reuters Connect",
+      "date": "2 days ago",
+      "published_at": "2026-08-23 02:50:14 UTC",
+      "snippet": "Aug 22, 2026; Phoenix, Arizona, USA; Atlanta Dream forward Angel Reese (5) celebrates after a basket in the first quarter against the Phoenix Mercury at...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/LK1ZWDlH9SS__zStDi2KncyY9zYdpMy_IUnLUU6MIUE.jpeg"
+    },
+    {
+      "position": 2,
+      "link": "https://www.si.com/mlb/rockies/onsi/rockies-monitoring-kyle-karros-after-early-exit-guardians-game",
+      "title": "Rockies Monitoring Kyle Karros After Early Exit from Guardians Game",
+      "source": "Sports Illustrated",
+      "date": "2 days ago",
+      "published_at": "2026-08-23 14:00:01 UTC",
+      "snippet": "The Colorado Rockies will pay close attention to Kyle Karros' health one day after getting him back from the injured list.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/xxrFJAr3t-5kWh4vAvBl3_nCusnkxURyv1jQ0nzi-Ds.jpeg"
+    },
+    {
+      "position": 3,
+      "link": "https://www.reutersconnect.com/item/wnba-atlanta-dream-at-phoenix-mercury/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX01UMVVTQVRPREFZMjk2NDY4NTY",
+      "title": "WNBA: Atlanta Dream at Phoenix Mercury",
+      "source": "Reuters Connect",
+      "date": "2 days ago",
+      "published_at": "2026-08-23 01:59:00 UTC",
+      "snippet": "Aug 22, 2026; Phoenix, Arizona, USA; A general view of Wilson EVO NXT WNBA official basketballs before a game between the Atlanta Dream and...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/mwIBKstVG-ba3heEsruBaSrkoOV1e_MjdcW7mkbgdGI.jpeg"
+    },
+    {
+      "position": 4,
+      "link": "https://www.si.com/mlb/angels/onsi/angels-vs-dodgers-preview-roki-sasaki-battles-grayson-rodriguez-in-freeway-series-finale-01krt432b0a0",
+      "title": "Angels vs. Dodgers Preview: Roki Sasaki Battles Grayson Rodriguez in Freeway Series Finale",
+      "source": "Sports Illustrated",
+      "date": "May 17, 2026",
+      "published_at": "2026-05-17 07:00:00 UTC",
+      "snippet": "Grayson Rodriguez is a promising young arm who will make his Angels debut on the biggest regular season stage possible.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/0d2avvJn4BxDTzjTYMKGwEk6dlt7q-fFjCXs2fojEDE.jpeg"
+    },
+    {
+      "position": 5,
+      "link": "https://www.si.com/fannation/mlb/fastball/news/edwin-diaz-return-timeline-shakes-up-dodgers-nl-west-pat3",
+      "title": "Edwin Díaz Return Timeline Shakes Up Dodgers, NL West",
+      "source": "Sports Illustrated",
+      "date": "Apr 21, 2026",
+      "published_at": "2026-04-21 07:00:00 UTC",
+      "snippet": "The Los Angeles Dodgers were dealt another blow on Monday and things are tighter in the National League West.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/gXzCM6QP66bOME-0HLqnZGbG1AqVTVpAP3SwZOye4b8.jpeg"
+    },
+    {
+      "position": 6,
+      "link": "https://www.si.com/mlb/diamondbacks/onsi/diamondbacks-calling-high-ranked-prospect-bratt",
+      "title": "The Diamondbacks Are Calling Up Yet Another High-Ranked Prospect Now",
+      "source": "Sports Illustrated",
+      "date": "Jun 23, 2026",
+      "published_at": "2026-06-23 07:00:00 UTC",
+      "snippet": "The Arizona Diamondbacks' parade of youthful contributors will continue this week, according to a new report.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/uz9OgQUnpSuWTkSvLLAPbMU0k7m4RF4Q09_359OWnd8.jpeg"
+    },
+    {
+      "position": 7,
+      "link": "https://www.reutersconnect.com/item/mlb-colorado-rockies-at-arizona-diamondbacks/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX01UMVVTQVRPREFZMjk1NjQ0MDQ",
+      "title": "MLB: Colorado Rockies at Arizona Diamondbacks",
+      "source": "Reuters Connect",
+      "date": "2 weeks ago",
+      "published_at": "2026-08-12 03:03:00 UTC",
+      "snippet": "Aug 11, 2026; Phoenix, Arizona, USA; Colorado Rockies third baseman Kyle Karros (12) at bat in the first inning of a game against the...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/TJofajjvZsyF4rOVabOrZ5UapikIqodzG1EhVeZLw34.jpeg"
+    },
+    {
+      "position": 8,
+      "link": "https://www.si.com/mlb/diamondbacks/onsi/d-backs-top-20-pitching-prospect-spins-another-gem-mitch-bratt",
+      "title": "D-backs Top-20 Pitching Prospect Spins Yet Another Gem",
+      "source": "Sports Illustrated",
+      "date": "May 2, 2026",
+      "published_at": "2026-05-02 07:00:00 UTC",
+      "snippet": "One member of the Arizona Diamondbacks' Deadline deal with the Texas Rangers has been shining above all others thus far in the 2026 season.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/CAXCBNo5GMlBtZY29uHIopGFuWRWYxR3TVlVZsujEL8.jpeg"
+    },
+    {
+      "position": 9,
+      "link": "https://www.reutersconnect.com/item/mlb-atlanta-braves-at-arizona-diamondbacks/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX01UMVVTQVRPREFZMjg2NjI3NTI?lastViewed=dGFnOnJldXRlcnMuY29tLDIwMjU6bmV3c21sX01UMVVTQVRPREFZMjU3OTc5Mzg&position=2",
+      "title": "MLB: Atlanta Braves at Arizona Diamondbacks",
+      "source": "Reuters Connect",
+      "date": "Apr 4, 2026",
+      "published_at": "2026-04-04 07:00:00 UTC",
+      "snippet": "Apr 4, 2026; Phoenix, Arizona, USA; Arizona Diamondbacks outfielder Alek Thomas (5) at bat in the eighth inning of a game against the...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png"
+    },
+    {
+      "position": 10,
+      "link": "https://www.si.com/mlb/reds/onsi/cincinnati-reds-get-one-of-best-relief-pitchers-back-send-zach-maxwell-to-louisville-01kqmrhndmae",
+      "title": "Cincinnati Reds Get One of Best Relief Pitchers Back, Send Zach Maxwell to Louisville",
+      "source": "Sports Illustrated",
+      "date": "May 2, 2026",
+      "published_at": "2026-05-02 07:00:00 UTC",
+      "snippet": "The Cincinnati Reds activated Graham Ashcraft from the Bereavement list on Saturday afternoon. In a corresponding roster move, the optioned...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1a13874d5056b5f882f6/images/-b-SHrnBrmipLUrzOXdd11XIyXSRe_BMVX2My9m50pI.jpeg"
+    }
+  ]
+}
