@@ -1,0 +1,141 @@
+{
+  "search_metadata": {
+    "id": "6a8e1b70bde9797462530e06",
+    "status": "Success",
+    "json_endpoint": "https://serpapi.com/searches/wFl8O9fXRBHR9FSw2dRSvQ/6a8e1b70bde9797462530e06.json",
+    "markdown_endpoint": "https://serpapi.com/searches/wFl8O9fXRBHR9FSw2dRSvQ/6a8e1b70bde9797462530e06.md",
+    "pixel_position_endpoint": "https://serpapi.com/searches/wFl8O9fXRBHR9FSw2dRSvQ/6a8e1b70bde9797462530e06.json_with_pixel_position",
+    "created_at": "2026-08-25 22:47:12 UTC",
+    "processed_at": "2026-08-25 22:47:12 UTC",
+    "google_url": "https://www.google.com/search?q=%22allan+henry-usa+today+sports%22&oq=%22allan+henry-usa+today+sports%22&hl=en&gl=us&tbm=nws&sourceid=chrome&ie=UTF-8",
+    "raw_html_file": "https://serpapi.com/searches/wFl8O9fXRBHR9FSw2dRSvQ/6a8e1b70bde9797462530e06.html",
+    "total_time_taken": 2.14
+  },
+  "search_parameters": {
+    "engine": "google",
+    "q": "\"allan henry-usa today sports\"",
+    "google_domain": "google.com",
+    "hl": "en",
+    "gl": "us",
+    "device": "desktop",
+    "tbm": "nws"
+  },
+  "search_information": {
+    "query_displayed": "\"allan henry-usa today sports\"",
+    "total_results": 7510,
+    "time_taken_displayed": 0.22,
+    "news_results_state": "Results for exact spelling"
+  },
+  "news_results": [
+    {
+      "position": 1,
+      "link": "https://www.si.com/mlb/padres/onsi/padres-new-owners-face-3-9-billion-question-after-record-purchase-analysis",
+      "title": "Padres’ New Owners Face $3.9 Billion Question After Record Purchase: Analysis",
+      "source": "Sports Illustrated",
+      "date": "4 hours ago",
+      "published_at": "2026-08-25 19:12:14 UTC",
+      "snippet": "For all their optimism and candor, José E. Feliciano and Kwanza Jones need more to demonstrate they understand the magnitude of their...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/PaJuxWhWkc3GQ5nEQECw5uPLuAY3mPMj6EKkOqvm23Q.jpeg"
+    },
+    {
+      "position": 2,
+      "link": "https://www.reutersconnect.com/item/pga-waste-management-phoenix-open-third-round/dGFnOnJldXRlcnMuY29tLDIwMjE6bmV3c21sX01UMVVTQVRPREFZMTU1Mzc4NjI?lastViewed=dGFnOnJldXRlcnMuY29tLDIwMTk6bmV3c21sX01UMVVTQVRPREFZMTIzOTA4NjQ&position=2",
+      "title": "PGA: Waste Management Phoenix Open - Third Round",
+      "source": "Reuters Connect",
+      "date": "20 hours ago",
+      "published_at": "2026-08-25 02:41:54 UTC",
+      "snippet": "Feb 6, 2021; Scottsdale, Arizona, USA; John Rahm with his tee shot on the third during the third round of the Waste Management Phoenix Open golf tournament...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png"
+    },
+    {
+      "position": 3,
+      "link": "https://www.reutersconnect.com/item/golf-the-tour-championship-final-round/dGFnOnJldXRlcnMuY29tLDIwMTE6bmV3c21sX01UMVVTQVRPREFZNTU3NjYwOA",
+      "title": "Licensable picture: GOLF: The TOUR Championship-Final Round",
+      "source": "Reuters Connect",
+      "date": "2 days ago",
+      "published_at": "2026-08-23 05:54:33 UTC",
+      "snippet": "Sep 25, 2011; Atlanta, GA, USA; Jason Day plays from just off the green of the 17th hole during the final round of the TOUR Championship at East Lake Golf.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/MI3caAvthWN4ZkZpiXy07zZ92pj9NXQGaI11Ksps8E0.jpeg"
+    },
+    {
+      "position": 4,
+      "link": "https://www.reutersconnect.com/item/mlb-spring-training-san-diego-padres-at-los-angeles-angels/dGFnOnJldXRlcnMuY29tLDIwMjQ6bmV3c21sX01UMVVTQVRPREFZMjI3NDY2NDY?lastViewed=dGFnOnJldXRlcnMuY29tLDIwMjQ6bmV3c21sX01UMVVTQVRPREFZMjI3NDY2NDQ&position=2",
+      "title": "Licensable picture: MLB: Spring Training-San Diego Padres at Los Angeles Angels",
+      "source": "Reuters Connect",
+      "date": "1 day ago",
+      "published_at": "2026-08-24 15:09:43 UTC",
+      "snippet": "Mar 10, 2024; Tempe, Arizona, USA; San Diego Padres starting pitcher Jhony Brito (76) on the mound in the first inning during a spring training game against...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png"
+    },
+    {
+      "position": 5,
+      "link": "https://redbirdrants.com/cardinals-manager-oli-marmol-sees-his-arch-nemesis-is-calling-it-quits",
+      "title": "Cardinals manager Oli Marmol sees his arch nemesis is calling it quits",
+      "source": "Redbird Rants",
+      "date": "1 month ago",
+      "published_at": "2026-07-07 07:00:00 UTC",
+      "snippet": "Long-time umpire CB Bucknor, who has had several run-ins with St. Louis Cardinals manager Oli Marmol, is retiring after the 2026 MLB season.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAbFBMVEUGL03___8AJ0YGME4AJES2wssAJUQDLEssTmjw8_UAIkIxU2ySpLIELUwAKUg9XXVTcIVJZXyntsCYqbafr7vy9fYjSGLFz9bk6exjfZB-k6OmtcBJXnY2WHDc4ubL1dsAEjUSOFVthpdVcYapZD_6AAAAl0lEQVQYlY2PURKDIAxE2QAiKiAqVGurpb3_HRs6PYD7lexkXxIhrkgaYhlSpLysBgXNGuOk59ZXQ00A7AKbsHTc-5xwk3nFNq-bYqO7A_vjCZzhh3Ty4MTpOWcjsdGMgN763A8JQ0WQBsLrCdszpeG-5XnDnHXHUQzvHIC3onCkNLUVIeInFid9yYX-dzbkuHDeXPpTiC-kWAcyoMdSXwAAAABJRU5ErkJggg.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/hafYh_hSdxna6xVZ1z8EsVQ1a2Jc8Y6O5Q6lNOjqi_4.jpeg"
+    },
+    {
+      "position": 6,
+      "link": "https://www.si.com/mlb/padres/onsi/padres-3-9-billion-sale-finally-timeline-completed",
+      "title": "Padres' $3.9 Billion Sale Finally Has Timeline to Be Completed: Here's What it Means",
+      "source": "Sports Illustrated",
+      "date": "2 weeks ago",
+      "published_at": "2026-08-08 07:00:00 UTC",
+      "snippet": "The San Diego Padres made history earlier this season when the team sold for a record $3.9 billion. New owners José E. Feliciano and Kwanza...",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAAAD____t7eyzs7Oenp6rq6uoqKi6urqwsLBjY2OTk5NISEhZWVhUVFTS0tL09PTm5uZ1dXVeXl0cHBuEhIRtbWx8fHxtSDXyAAAAaElEQVQYlZ2PWxaAIAhEB19pVkqm-19qmLqB-ODAPcMAwK8Ixro9AjGEQ9qTRlzYiJKALA17SdBESoCS2t7G2DKB_gayL0uB5xomCzBXjklA9QN0U3RRmIDnWrXWAs1ZZ-SkozX-89gLeO0C5CzErYUAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/7IhZX6anFQh-8XmC081YU5vK_mub2McStfdKA9VgQJo.jpeg"
+    },
+    {
+      "position": 7,
+      "link": "https://www.bleachernation.com/cubs/2026/07/06/a-number-of-notable-mlb-umpires-reportedly-expected-to-retire-after-this-season/",
+      "title": "A Number of Notable MLB Umpires Reportedly Expected to Retire After This Season",
+      "source": "Bleacher Nation",
+      "date": "1 month ago",
+      "published_at": "2026-07-06 07:00:00 UTC",
+      "snippet": "They always say it isn't a good thing when you know an umpire's name. So that headline right there is already pretty inauspicious.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAWlBMVEVHcEwAKksaSGQADzxcdIb9-voAHkP____________-xMSdrLb_1NRKaHzBy9O1wss9XnT3AAAAATXs8fSruMGsucLe5OjO193-5uaKnKlyipv9pqb9rq5HcExvHlozAAAAHnRSTlMA________gfX__________________________wClB7iCAAAAjklEQVQYlWXP3Q6DIAwF4AKlcFQQ1Pm3vf9zrrpsibM5F82Xc9EShYjfxEAUcJlA8QqRkBMzZ2xpxpJ6ECZX2DjPYpGHVuHhel8M2Bhe3AlGBtkVkiT5NrYhs4zWmAMmKWwV3DjL2ehtsaXFbkddJwWg03iN1-WAV12b2nW1WevzBN_4T6DB_fTbc__vvwEV8AmenO5eAAAAAABJRU5ErkJggg.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/NtR4ueP4vTa5PKzoxmg_pbBytvwU_6HtOM00ofb0Z0Q.jpeg"
+    },
+    {
+      "position": 8,
+      "link": "https://www.pjstar.com/picture-gallery/sports/mlb/2026/01/12/mlb-evolution-photos-chillicothe-native-zach-mcallister/88151515007/",
+      "title": "See the evolution of retired MLB pitcher Zach McAllister of IVC",
+      "source": "Peoria Journal Star",
+      "date": "Jan 12, 2026",
+      "published_at": "2026-01-12 08:00:00 UTC",
+      "snippet": "The MLB career of IVC graduate Zach McAllister spanned over a decade, mostly in Cleveland. See his career in pictures.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAARVBMVEUAktD___8Ajc6ZyOYAkM8AiMwAi82b0Oo1pdio0-vt-fwioddis96mzumVxubL4_L1_P7F5PN2vuPc8fkAmtTW7PZMq9vR05ueAAAAXUlEQVQYlV3MWQ6AIAwE0LaUxR1UvP9RBTFKOz_NvGQK0IUDYt-BBgV2fIHpiZuwAc-LqVm3F4A8fmljF6KE8iVJALa7hDpTQEaBPRScteYsF966fhGvv9ZFYir3BvTBAhxbXK2mAAAAAElFTkSuQmCC.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/gXXFHtBFCHVDtJeZz4LQiJ27djSjd6YLMgT3IxrWamA.jpeg"
+    },
+    {
+      "position": 9,
+      "link": "https://www.palmbeachpost.com/picture-gallery/sports/pga/2025/10/09/rory-mcilroy-ryder-cup-star-grand-slam-winner/86603482007/",
+      "title": "Masters champion, Ryder Cup Europe star Rory McIlroy golf photos through the years",
+      "source": "The Palm Beach Post",
+      "date": "Oct 9, 2025",
+      "published_at": "2025-10-09 07:00:00 UTC",
+      "snippet": "Rory McIlroy won the Masters in 2025 to complete the career grand slam and then helped Europe defeat the U.S. at the Ryder Cup.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAANlBMVEX___8AAACgoKDb29vz8_P39_eWlpa0tLRWVlbJycnPz8_r6-vX19diYmKLi4uurq7f39-CgoKU4FJJAAAAO0lEQVQYlWNgoBJgZWJkY-fgRBZiZGbgYmRFFWBm5EYW4GHh5UPRws_FgmIsowCaPUAz0KwVRFdCCQAAdHQA1jzAY2EAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/oeH_PdtmEQu0TUWTff5UHVs2JlCN7sO6WxHR3BlPXrI.jpeg"
+    },
+    {
+      "position": 10,
+      "link": "https://www.reutersconnect.com/item/pga-wm-phoenix-open-second-round/dGFnOnJldXRlcnMuY29tLDIwMjM6bmV3c21sX01UMVVTQVRPREFZMTk5NjUxMDM",
+      "title": "Licensable picture: PGA: WM Phoenix Open - Second Round",
+      "source": "Reuters Connect",
+      "date": "5 days ago",
+      "published_at": "2026-08-20 09:07:35 UTC",
+      "snippet": "Feb 10, 2023; Scottsdale, Arizona, USA; A general view of the par 3 16th hole during the second round of the WM Phoenix Open golf tournament.",
+      "favicon": "https://serpapi.com/images/i/iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8_9hAAAA70lEQVQ4jY2T0XHEIAxEHx4346QIdIXdhKvMJKkBqOZMftCdwB47-2OPWInVrg0nSEJIQgAoghRBRs40FoogWVgNIRZBKqwb-wFd49EN9hwgCzUL9Ux51zAiCcEqdFr8jO9dN5AJoj6VvMT3u_bMbYofb2rkV4NV1Dz5yp7nTra6_t-15uy5O8fvEolLJJbDzfdIQnCV5wRg47F7nqmw3ryKV1EmIezOs-eehTqadNWchbXc8LOb-Nkqj4_Yx6VkE2kHB49l5Rs78SiBUc24pv0XRL8HS7gydYf2qVYdpKpGnxTzWGjxROjjdXA7UvMHiiB-rQxAskoAAAAASUVORK5CYII.png",
+      "thumbnail": "https://serpapi.com/searches/6a8e1b70bde9797462530e06/images/Ix2y0RylTitZRNaFQFC5iYbzjlV75fdcuRL3_aIWT68.jpeg"
+    }
+  ]
+}
