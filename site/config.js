@@ -30,6 +30,7 @@ export const CONFIG = {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/allanhenry" },
     { label: "Wire feed", href: "https://www.imagn.com/search/?searchtxt=%22allan%20henry%22" },
     { label: "Instagram", href: "https://www.instagram.com/allanhenry" },
+    { label: "Source", href: "https://github.com/allan-henry/tearsheets" },
   ],
 
   // Base URL for published JSON (/data/*) and cached images (/img/*), both of
