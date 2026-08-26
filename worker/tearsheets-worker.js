@@ -1,5 +1,12 @@
 /*
- * Created: 2026-08-25 10:38 MST (America/Phoenix)
+ * Created: 2026-08-26 09:25 MST (America/Phoenix)
+ * Supersedes the 2026-08-25 10:38 copy. Two changes, both in fetchImagesToR2:
+ *   1. `pending:` rows excluded from the fetch queue (they have no image to get).
+ *   2. SerpApi favicon URLs under /images/i/ retired on sight instead of
+ *      consuming three fetch attempts each.
+ * Upload to the repo as worker/tearsheets-worker.js, and paste the same contents
+ * into Cloudflare Quick Edit.
+ *
  * tearsheets harvest Worker. Single file, no build step, Quick Edit deployable.
  *
  * Bindings required (dashboard > Worker > Settings):
@@ -275,6 +282,7 @@ async function fetchImagesToR2(env, cap) {
     `SELECT id, image_url, thumbnail_url FROM instances
      WHERE r2_key IS NULL AND COALESCE(fetch_failed, 0) < 3
        AND (image_url NOT LIKE 'article:%' OR thumbnail_url IS NOT NULL)
+       AND image_url NOT LIKE 'pending:%'
      LIMIT ?`
   ).bind(cap).all();
   let ok = 0;
@@ -282,6 +290,13 @@ async function fetchImagesToR2(env, cap) {
   for (const row of results) {
     const src = row.image_url.startsWith("article:") ? row.thumbnail_url : row.image_url;
     if (!src) continue;
+    // SerpApi serves favicons from /images/i/ and real thumbnails from
+    // /searches/<id>/images/. A favicon fetches clean, lands well under 1KB, and
+    // burns all three strikes before retiring. Retire it immediately instead.
+    if (src.includes("serpapi.com/images/i/")) {
+      await env.DB.prepare(`UPDATE instances SET fetch_failed = 3 WHERE id=?`).bind(row.id).run();
+      continue;
+    }
     try {
       // Fetch the original bytes once, buffered, and validate before storing.
       // Resizing via cf.image needs Image Resizing on a zone; try it per width
