@@ -1,24 +1,21 @@
 <!doctype html>
-<!-- Created: 2026-08-25 09:55 MST (America/Phoenix). Frame detail: one photo large, every placement beneath. -->
+<!-- Upload to the repo as site/frame.html
+     Created: 2026-08-26 08:50 MST (America/Phoenix). Frame detail: one photo large, every placement beneath.
+     GENERIC. Header, nav, title, and About prose all render from config.js
+     via assets/chrome.js. No personal values in this file. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Frame</title>
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-<header class="site">
-  <h1>Your Name</h1>
-  <nav>
-    <a href="/">Tearsheets</a>
-    <a href="/grid.html">Photos</a>
-    <a href="/about.html">About</a>
-  </nav>
-</header>
-<main id="frame"></main>
+<header class="site"></header>
+<main><div id="frame"></div></main>
 <script type="module">
+  import { mountChrome } from "/assets/chrome.js";
   import { renderFrame } from "/assets/site.js";
+  mountChrome("frame");
   renderFrame(document.getElementById("frame"));
 </script>
 </body>
