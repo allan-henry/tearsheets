@@ -1,5 +1,6 @@
-/* Created: 2026-08-26 08:50 MST (America/Phoenix)
-   Upload to the repo as site/assets/chrome.js (new file).
+/* Created: 2026-08-26 09:17 MST (America/Phoenix)
+   Supersedes the 08:50 copy. Change: the h1 name now links back to the feed.
+   Upload to the repo as site/assets/chrome.js.
 
    GENERIC. No personal values live here. Everything this renders comes from
    config.js, so the four page templates carry no name, no links, and no prose.
@@ -16,7 +17,10 @@ const NAV = [
 const PAGE_TITLES = { grid: "Photos", frame: "Frame", about: "About" };
 
 /* Call once per page with the active nav key: feed, grid, frame, or about.
-   frame is deliberately absent from NAV, it has no nav entry of its own. */
+   frame is deliberately absent from NAV, it has no nav entry of its own.
+   The h1 is a link home on every page including the feed itself, which is the
+   convention people expect from a masthead. site.css already sets
+   `a { color: inherit; text-decoration: none }` globally, so it needs no styling. */
 export function mountChrome(active) {
   document.title = active === "feed"
     ? CONFIG.siteName
@@ -25,7 +29,7 @@ export function mountChrome(active) {
   const header = document.querySelector("header.site");
   if (!header) return;
   header.innerHTML =
-    `<h1>${esc(CONFIG.displayName)}</h1>
+    `<h1><a href="/">${esc(CONFIG.displayName)}</a></h1>
      <nav>${NAV.map((n) =>
        `<a${n.key === active ? ' class="on"' : ""} href="${n.href}">${esc(n.label)}</a>`
      ).join("\n       ")}</nav>`;
