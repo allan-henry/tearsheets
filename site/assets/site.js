@@ -1,6 +1,11 @@
-/* Created: 2026-08-26 08:18 MST (America/Phoenix)
-   Supersedes the 2026-08-25 09:55 copy. Change: every /data/* and /img/* path now
-   resolves through mediaURL(), so the R2 custom domain can serve them.
+/* Created: 2026-08-26 10:37 MST (America/Phoenix)
+   Supersedes the 2026-08-26 08:18 copy. One change, in moreButton():
+   the Load more button no longer guesses which page it is on by testing
+   location.pathname against "grid.html". _redirects strips the .html
+   extension, so on /grid?page=2 that test failed and Load more called
+   renderFeed(), dumping feed cards into the grid container. Each renderer
+   now hands moreButton its own repeat function, so there is no path
+   sniffing left to break.
    Upload to the repo as site/assets/site.js (canonical path, imported by exact name).
    tearsheets front end. Fetch pregenerated JSON, render, load-more with URL param, lightbox. */
 
@@ -29,7 +34,7 @@ export async function renderFeed(el) {
   const items = data.items || [];
   const upTo = page() * CONFIG.feedPageSize;
   el.innerHTML = items.slice(0, upTo).map(cardHTML).join("");
-  moreButton(el, items.length > upTo);
+  moreButton(el, items.length > upTo, () => renderFeed(el));
 }
 
 function cardHTML(c) {
@@ -54,7 +59,7 @@ export async function renderGrid(el) {
   el.innerHTML = items.slice(0, upTo).map((g) =>
     `<a class="${g.orientation}${g.featured ? " featured" : ""}" href="/frame.html?id=${g.frame_id}">
        <img src="${esc(mediaURL(g.src))}" loading="lazy" alt=""></a>`).join("");
-  moreButton(el, items.length > upTo);
+  moreButton(el, items.length > upTo, () => renderGrid(el));
   lightbox(el);
 }
 
@@ -78,7 +83,11 @@ export async function renderFrame(el) {
     </p>` : ""}`;
 }
 
-function moreButton(el, hasMore) {
+/* rerender is supplied by the caller (renderFeed or renderGrid passes a closure
+   over itself). Do NOT reintroduce a location.pathname test here: _redirects
+   serves these pages without the .html extension, so /grid never matches
+   "grid.html" and the grid silently rendered feed cards. */
+function moreButton(el, hasMore, rerender) {
   document.querySelector(".more")?.remove();
   if (!hasMore) return;
   const b = document.createElement("button");
@@ -87,7 +96,7 @@ function moreButton(el, hasMore) {
   b.onclick = () => {
     qs.set("page", String(page() + 1));
     history.replaceState(null, "", `?${qs}`);
-    location.pathname.endsWith("grid.html") ? renderGrid(el) : renderFeed(el);
+    rerender();
   };
   el.after(b);
 }
