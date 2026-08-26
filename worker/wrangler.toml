@@ -1,6 +1,16 @@
-# Created: 2026-08-25 10:50 MST (America/Phoenix)
+# Created: 2026-08-26 09:20 MST (America/Phoenix)
+# Upload to the repo as worker/wrangler.toml
+# main updated for the undated worker filename. Rename
+# tearsheets-worker-2026-08-25-1337.js to tearsheets-worker.js in the same commit,
+# or this points at a file that no longer exists.
+
+# FLAG, unresolved: the handoffs record the deployed Worker as "tearsheets".
+# This name is "tearsheets-worker". If those differ, `wrangler deploy` creates a
+# SECOND Worker under this name with none of the live bindings or secrets, rather
+# than updating the one that is running. Left as written. Confirm the real name in
+# the Cloudflare dashboard and change this line if it disagrees.
 name = "tearsheets-worker"
-main = "tearsheets-worker-2026-08-25-1337.js"
+main = "tearsheets-worker.js"
 compatibility_date = "2026-08-01"
 # cron intentionally absent until a manual /run survives; then uncomment:
 # [triggers]
