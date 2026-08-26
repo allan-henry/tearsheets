@@ -20,7 +20,7 @@ export const CONFIG = {
   // About page prose. One string per paragraph, plain text only.
   // Escaped on render, so apostrophes and quotes are safe. HTML is not honored.
   bio: [
-    "DRAFT, REPLACE ME. Sports photojournalist, roughly twenty years shooting for USA Today, with credentials from Sports Illustrated and National Geographic.",
+    "Published works by Allan Henry. Access the GIT and build out your own tearsheet portfolio site.",
     "This site is an automated archive of every public appearance of my credit line. It finds published uses on its own and keeps finding new ones.",
   ],
 
