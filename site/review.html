@@ -1,5 +1,9 @@
 <!doctype html>
-<!-- Created: 2026-08-25 09:55 MST (America/Phoenix)
+<!-- Created: 2026-08-26 08:18 MST (America/Phoenix)
+     Supersedes the 2026-08-25 09:55 copy. Change: /img/* paths in the hashing loop
+     and the group thumbnails now resolve through mediaURL(). The WORKER constant is
+     deliberately unchanged: /api is same-origin on the site host, not media.
+     Upload to the repo as site/review.html (canonical path, served by exact name).
      tearsheets merge/split review, behind Cloudflare Access on /review*.
      Also the dhash engine: the browser decodes images and computes hashes,
      then POSTs them to the Worker. -->
@@ -38,6 +42,7 @@
 </main>
 <script type="module">
 import { dhashFromImage, hamming } from "/assets/parsers.js";
+import { mediaURL } from "/assets/site.js";
 
 const WORKER = "/api"; // route the Worker under /api via its route pattern, or set an absolute URL
 const log = (m) => document.getElementById("log").textContent += m + "\n";
@@ -55,7 +60,10 @@ document.getElementById("hash").onclick = async () => {
   log(`hashing ${rows.length} instances`);
   const out = [];
   for (const row of rows) {
-    const src = row.r2_key ? `/img/${row.id}/600.jpg` : row.thumbnail_url;
+    // R2-cached images resolve to the media host, which sends the CORS header the
+    // canvas read needs. thumbnail_url is a third-party origin with no such header,
+    // so those still taint and land in the catch below. That is expected, not a bug.
+    const src = row.r2_key ? mediaURL(`/img/${row.id}/600.jpg`) : row.thumbnail_url;
     if (!src) continue;
     try {
       const img = await loadImage(src);
@@ -87,7 +95,7 @@ document.getElementById("load").onclick = async () => {
         ${f.members.some((m) => m.distance >= 3) ? '<span class="warn">near threshold, eyeball this</span>' : ""}</div>
       <div class="thumbs">${f.members.map((m) => `
         <figure style="margin:0">
-          <img src="${m.thumb}" alt="">
+          <img src="${mediaURL(m.thumb)}" alt="">
           <figcaption class="dist">${m.domain} d=${m.distance ?? "?"}</figcaption>
         </figure>`).join("")}</div>
       <div class="dist">${(f.caption || "").slice(0, 160)}</div>
