@@ -1,10 +1,28 @@
-/* Created: 2026-08-25 09:55 MST (America/Phoenix)
+/* Created: 2026-08-26 08:18 MST (America/Phoenix)
+   Supersedes the 2026-08-25 09:55 copy. Change: every /data/* and /img/* path now
+   resolves through mediaURL(), so the R2 custom domain can serve them.
+   Upload to the repo as site/assets/site.js (canonical path, imported by exact name).
    tearsheets front end. Fetch pregenerated JSON, render, load-more with URL param, lightbox. */
 
 import { CONFIG } from "../config.js";
 
 const qs = new URLSearchParams(location.search);
 const page = () => Math.max(1, Number(qs.get("page") || 1));
+
+/* The Worker writes root-relative keys into published JSON: /img/<id>/600.jpg,
+   /img/<id>/1600.jpg, and falls back to third-party absolute URLs when an image
+   was never cached in R2. So this has to pass absolutes through untouched and
+   prepend the base only to our own keys. Exported because review.html needs the
+   same resolution for its thumbnails and its hashing loop. */
+export function mediaURL(path) {
+  const p = String(path ?? "");
+  if (!p) return "";
+  if (/^(https?:)?\/\//i.test(p)) return p;
+  if (/^data:/i.test(p)) return p;
+  const base = String(CONFIG.mediaBase || "").replace(/\/+$/, "");
+  if (!base) return p;
+  return base + (p.startsWith("/") ? p : "/" + p);
+}
 
 export async function renderFeed(el) {
   const data = await getJSON("/data/feed.json");
@@ -18,7 +36,7 @@ function cardHTML(c) {
   const cls = ["card", c.orientation || "landscape", c.featured ? "featured" : ""].join(" ");
   return `<article class="${cls}">
     <a href="${esc(c.article_url)}" target="_blank" rel="noopener">
-      <img src="${esc(c.src)}" loading="lazy" alt="${esc(c.title || "photo")}">
+      <img src="${esc(mediaURL(c.src))}" loading="lazy" alt="${esc(c.title || "photo")}">
     </a>
     <div class="meta">
       <div class="outlet">${c.favicon ? `<img src="${esc(c.favicon)}" alt="">` : ""}${esc(c.outlet)}</div>
@@ -35,7 +53,7 @@ export async function renderGrid(el) {
   const upTo = page() * CONFIG.feedPageSize * 2;
   el.innerHTML = items.slice(0, upTo).map((g) =>
     `<a class="${g.orientation}${g.featured ? " featured" : ""}" href="/frame.html?id=${g.frame_id}">
-       <img src="${esc(g.src)}" loading="lazy" alt=""></a>`).join("");
+       <img src="${esc(mediaURL(g.src))}" loading="lazy" alt=""></a>`).join("");
   moreButton(el, items.length > upTo);
   lightbox(el);
 }
@@ -46,7 +64,7 @@ export async function renderFrame(el) {
   const d = await getJSON(`/data/frame/${id}.json`);
   const hero = d.placements[0] || {};
   el.innerHTML = `
-    <div class="frame-hero"><img src="${esc(hero.large || hero.src || "")}" alt=""></div>
+    <div class="frame-hero"><img src="${esc(mediaURL(hero.large || hero.src || ""))}" alt=""></div>
     <p class="frame-caption">${esc(d.frame.caption || d.frame.event_name || "")}</p>
     <div class="placements">
       ${d.placements.map((p) => `<div class="placement">
@@ -96,8 +114,9 @@ function lightbox(scope) {
 }
 
 async function getJSON(path) {
-  const r = await fetch(path);
-  if (!r.ok) throw new Error(`${path} ${r.status}`);
+  const url = mediaURL(path);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${url} ${r.status}`);
   return r.json();
 }
 function esc(s) {
