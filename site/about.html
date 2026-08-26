@@ -1,29 +1,21 @@
 <!doctype html>
-<!-- Created: 2026-08-25 10:38 MST (America/Phoenix). Bio page. Prose lives here, not in config. STUB COPY. -->
+<!-- Upload to the repo as site/about.html
+     Created: 2026-08-26 08:50 MST (America/Phoenix). Bio page. Prose lives in config.js bio[], not here.
+     GENERIC. Header, nav, title, and About prose all render from config.js
+     via assets/chrome.js. No personal values in this file. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>About</title>
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-<header class="site">
-  <h1>Your Name</h1>
-  <nav>
-    <a href="/">Tearsheets</a>
-    <a href="/grid.html">Photos</a>
-    <a class="on" href="/about.html">About</a>
-  </nav>
-</header>
-<main style="max-width:70ch">
-  <p>PLACEHOLDER BIO. A working photographer. This site is an automated archive of every
-  public appearance of their credit line.</p>
-  <p>
-    <a href="https://www.linkedin.com/in/yourname" style="text-decoration:underline">LinkedIn</a> ·
-    <a href="https://example.com/your-wire-feed" style="text-decoration:underline">Wire feed</a> ·
-    <a href="mailto:you@example.com" style="text-decoration:underline">Contact</a>
-  </p>
-</main>
+<header class="site"></header>
+<main><div id="about" style="max-width:70ch"></div></main>
+<script type="module">
+  import { mountChrome, mountAbout } from "/assets/chrome.js";
+  mountChrome("about");
+  mountAbout(document.getElementById("about"));
+</script>
 </body>
 </html>
