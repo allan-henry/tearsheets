@@ -1,8 +1,15 @@
 <!doctype html>
-<!-- Created: 2026-08-26 08:18 MST (America/Phoenix)
-     Supersedes the 2026-08-25 09:55 copy. Change: /img/* paths in the hashing loop
-     and the group thumbnails now resolve through mediaURL(). The WORKER constant is
-     deliberately unchanged: /api is same-origin on the site host, not media.
+<!-- Created: 2026-09-11 19:25 MST (America/Phoenix)
+     Supersedes the 2026-08-26 08:18 copy. Changes (handoff 4, Finding 10):
+       1. Every button shows a status line: running with elapsed seconds, then done
+          or the error text. Nothing is swallowed into the console any more.
+       2. Buttons disable while a request is in flight, so a slow publish cannot be
+          double-clicked (see handoff 4, Finding 7, for why that matters on cluster).
+       3. "4a. Publish (dry run)" hits /admin/publish?dry=1 and reports survivor
+          counts without writing.
+       4. Token persists in sessionStorage for the tab, so a reload does not silently
+          send empty headers and 401.
+     Upload to the repo as site/review.html.
      Upload to the repo as site/review.html (canonical path, served by exact name).
      tearsheets merge/split review, behind Cloudflare Access on /review*.
      Also the dhash engine: the browser decodes images and computes hashes,
@@ -33,10 +40,12 @@
     <button id="hash">1. Hash unhashed images</button>
     <button id="clusterDry">2. Cluster (dry run)</button>
     <button id="clusterLive">3. Cluster (live)</button>
+    <button id="publishDry">4a. Publish (dry run)</button>
     <button id="publish">4. Publish JSON</button>
     <button id="sheets">Sheets sync</button>
     <button id="load">Load frame groups</button>
   </div>
+  <div id="status" class="dist" style="margin-bottom:8px"></div>
   <div id="log"></div>
   <div id="groups"></div>
 </main>
@@ -46,16 +55,47 @@ import { mediaURL } from "/assets/site.js";
 
 const WORKER = "/api"; // route the Worker under /api via its route pattern, or set an absolute URL
 const log = (m) => document.getElementById("log").textContent += m + "\n";
-const hdr = () => ({ "x-admin-token": document.getElementById("token").value });
+const tokenEl = document.getElementById("token");
+tokenEl.value = sessionStorage.getItem("tearsheets_token") || "";
+tokenEl.oninput = () => sessionStorage.setItem("tearsheets_token", tokenEl.value);
+const hdr = () => ({ "x-admin-token": tokenEl.value });
 
 async function api(path, opts = {}) {
+  if (!tokenEl.value) throw new Error("admin token is empty");
   const r = await fetch(WORKER + path, { ...opts, headers: { ...hdr(), ...(opts.headers || {}) } });
-  const d = await r.json();
-  if (!r.ok) throw new Error(JSON.stringify(d));
+  const text = await r.text();
+  let d; try { d = JSON.parse(text); } catch { d = { raw: text.slice(0, 500) }; }
+  if (!r.ok) throw new Error(`${r.status} ${JSON.stringify(d)}`);
   return d;
 }
 
-document.getElementById("hash").onclick = async () => {
+/* Wrap a button handler: status line with elapsed time, all buttons disabled while
+   running, errors printed on the page. */
+function wire(id, label, fn) {
+  const btn = document.getElementById(id);
+  const status = document.getElementById("status");
+  btn.onclick = async () => {
+    const all = [...document.querySelectorAll(".bar button")];
+    all.forEach((b) => (b.disabled = true));
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      status.textContent = `${label}: running, ${Math.round((Date.now() - t0) / 1000)}s`;
+    }, 500);
+    status.textContent = `${label}: running`;
+    try {
+      await fn();
+      status.textContent = `${label}: done in ${Math.round((Date.now() - t0) / 1000)}s`;
+    } catch (e) {
+      status.textContent = `${label}: FAILED after ${Math.round((Date.now() - t0) / 1000)}s`;
+      log(`ERROR ${label}: ${e.message || e}`);
+    } finally {
+      clearInterval(tick);
+      all.forEach((b) => (b.disabled = false));
+    }
+  };
+}
+
+wire("hash", "hash", async () => {
   const rows = await api("/admin/unhashed");
   log(`hashing ${rows.length} instances`);
   const out = [];
@@ -74,18 +114,20 @@ document.getElementById("hash").onclick = async () => {
   const res = await api("/admin/hashes", { method: "POST",
     headers: { "content-type": "application/json" }, body: JSON.stringify(out) });
   log(`saved ${res.saved} hashes`);
-};
+});
 
-document.getElementById("clusterDry").onclick = async () =>
-  log(JSON.stringify(await api("/admin/cluster?dry=1", { method: "POST" }), null, 2));
-document.getElementById("clusterLive").onclick = async () =>
-  log(JSON.stringify(await api("/admin/cluster", { method: "POST" }), null, 2));
-document.getElementById("publish").onclick = async () =>
-  log(JSON.stringify(await api("/admin/publish", { method: "POST" })));
-document.getElementById("sheets").onclick = async () =>
-  log(JSON.stringify(await api("/admin/sheets-sync", { method: "POST" })));
+wire("clusterDry", "cluster dry", async () =>
+  log(JSON.stringify(await api("/admin/cluster?dry=1", { method: "POST" }), null, 2)));
+wire("clusterLive", "cluster live", async () =>
+  log(JSON.stringify(await api("/admin/cluster", { method: "POST" }), null, 2)));
+wire("publishDry", "publish dry", async () =>
+  log(JSON.stringify(await api("/admin/publish?dry=1", { method: "POST" }), null, 2)));
+wire("publish", "publish", async () =>
+  log(JSON.stringify(await api("/admin/publish", { method: "POST" }), null, 2)));
+wire("sheets", "sheets sync", async () =>
+  log(JSON.stringify(await api("/admin/sheets-sync", { method: "POST" }), null, 2)));
 
-document.getElementById("load").onclick = async () => {
+wire("load", "load frames", async () => {
   const frames = await api("/admin/review");
   const el = document.getElementById("groups");
   el.innerHTML = frames.filter((f) => f.members.length > 1 ||
@@ -101,7 +143,7 @@ document.getElementById("load").onclick = async () => {
       <div class="dist">${(f.caption || "").slice(0, 160)}</div>
     </div>`).join("");
   log(`${frames.length} frames loaded, showing multi-member and near-threshold groups`);
-};
+});
 
 function loadImage(src) {
   return new Promise((res, rej) => {
