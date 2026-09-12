@@ -1,0 +1,190 @@
+<!doctype html>
+<!-- Created: 2026-09-11 20:10 MST (America/Phoenix)
+     Supersedes the 19:50 copy. Adds "5b. Verify all": loops /verify?batch=100 until
+     the Worker reports the queue drained, with running totals in the status line.
+     Stops on the first error. Needs Worker 2026-09-11 20:10 or later for batch=100.
+     From 19:50: Adds the verify buttons (5a dry, 5 live) and the
+     fetch-images button, so the verification loop runs from this page.
+     From 19:25 (handoff 4, Finding 10):
+       1. Every button shows a status line: running with elapsed seconds, then done
+          or the error text. Nothing is swallowed into the console any more.
+       2. Buttons disable while a request is in flight, so a slow publish cannot be
+          double-clicked (see handoff 4, Finding 7, for why that matters on cluster).
+       3. "4a. Publish (dry run)" hits /admin/publish?dry=1 and reports survivor
+          counts without writing.
+       4. Token persists in sessionStorage for the tab, so a reload does not silently
+          send empty headers and 401.
+     Upload to the repo as site/review.html.
+     Upload to the repo as site/review.html (canonical path, served by exact name).
+     tearsheets merge/split review, behind Cloudflare Access on /review*.
+     Also the dhash engine: the browser decodes images and computes hashes,
+     then POSTs them to the Worker. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review, tearsheets admin</title>
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  .bar { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .bar button, .bar input { font:inherit; padding:8px 14px; background:var(--card);
+    color:var(--ink); border:1px solid var(--edge); }
+  .group { border:1px solid var(--edge); margin-bottom:16px; padding:12px; }
+  .group .thumbs { display:flex; gap:8px; flex-wrap:wrap; }
+  .group img { height:110px; }
+  .dist { font-size:12px; color:var(--ink-dim); }
+  .warn { color:#e6b34a; }
+  #log { font-size:12px; color:var(--ink-dim); white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<header class="site"><h1>Review</h1></header>
+<main>
+  <div class="bar">
+    <input id="token" type="password" placeholder="admin token" size="30">
+    <button id="hash">1. Hash unhashed images</button>
+    <button id="clusterDry">2. Cluster (dry run)</button>
+    <button id="clusterLive">3. Cluster (live)</button>
+    <button id="verifyDry">5a. Verify (dry run, 20 articles)</button>
+    <button id="verify">5. Verify (live, 20 articles)</button>
+    <button id="verifyAll">5b. Verify all (loops 100 at a time)</button>
+    <button id="fetchImages">6. Fetch images to R2</button>
+    <button id="publishDry">4a. Publish (dry run)</button>
+    <button id="publish">4. Publish JSON</button>
+    <button id="sheets">Sheets sync</button>
+    <button id="load">Load frame groups</button>
+  </div>
+  <div id="status" class="dist" style="margin-bottom:8px"></div>
+  <div id="log"></div>
+  <div id="groups"></div>
+</main>
+<script type="module">
+import { dhashFromImage, hamming } from "/assets/parsers.js";
+import { mediaURL } from "/assets/site.js";
+
+const WORKER = "/api"; // route the Worker under /api via its route pattern, or set an absolute URL
+const log = (m) => document.getElementById("log").textContent += m + "\n";
+const tokenEl = document.getElementById("token");
+tokenEl.value = sessionStorage.getItem("tearsheets_token") || "";
+tokenEl.oninput = () => sessionStorage.setItem("tearsheets_token", tokenEl.value);
+const hdr = () => ({ "x-admin-token": tokenEl.value });
+
+async function api(path, opts = {}) {
+  if (!tokenEl.value) throw new Error("admin token is empty");
+  const r = await fetch(WORKER + path, { ...opts, headers: { ...hdr(), ...(opts.headers || {}) } });
+  const text = await r.text();
+  let d; try { d = JSON.parse(text); } catch { d = { raw: text.slice(0, 500) }; }
+  if (!r.ok) throw new Error(`${r.status} ${JSON.stringify(d)}`);
+  return d;
+}
+
+/* Wrap a button handler: status line with elapsed time, all buttons disabled while
+   running, errors printed on the page. */
+function wire(id, label, fn) {
+  const btn = document.getElementById(id);
+  const status = document.getElementById("status");
+  btn.onclick = async () => {
+    const all = [...document.querySelectorAll(".bar button")];
+    all.forEach((b) => (b.disabled = true));
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      status.textContent = `${label}: running, ${Math.round((Date.now() - t0) / 1000)}s`;
+    }, 500);
+    status.textContent = `${label}: running`;
+    try {
+      await fn();
+      status.textContent = `${label}: done in ${Math.round((Date.now() - t0) / 1000)}s`;
+    } catch (e) {
+      status.textContent = `${label}: FAILED after ${Math.round((Date.now() - t0) / 1000)}s`;
+      log(`ERROR ${label}: ${e.message || e}`);
+    } finally {
+      clearInterval(tick);
+      all.forEach((b) => (b.disabled = false));
+    }
+  };
+}
+
+wire("hash", "hash", async () => {
+  const rows = await api("/admin/unhashed");
+  log(`hashing ${rows.length} instances`);
+  const out = [];
+  for (const row of rows) {
+    // R2-cached images resolve to the media host, which sends the CORS header the
+    // canvas read needs. thumbnail_url is a third-party origin with no such header,
+    // so those still taint and land in the catch below. That is expected, not a bug.
+    const src = row.r2_key ? mediaURL(`/img/${row.id}/600.jpg`) : row.thumbnail_url;
+    if (!src) continue;
+    try {
+      const img = await loadImage(src);
+      out.push({ id: row.id, dhash: dhashFromImage(img),
+        width: img.naturalWidth, height: img.naturalHeight });
+    } catch { log(`skip ${row.id}: image failed (likely hotlink block, wait for R2 fetch)`); }
+  }
+  const res = await api("/admin/hashes", { method: "POST",
+    headers: { "content-type": "application/json" }, body: JSON.stringify(out) });
+  log(`saved ${res.saved} hashes`);
+});
+
+wire("clusterDry", "cluster dry", async () =>
+  log(JSON.stringify(await api("/admin/cluster?dry=1", { method: "POST" }), null, 2)));
+wire("clusterLive", "cluster live", async () =>
+  log(JSON.stringify(await api("/admin/cluster", { method: "POST" }), null, 2)));
+wire("verifyDry", "verify dry", async () =>
+  log(JSON.stringify(await api("/verify?batch=20&dry=1"), null, 2)));
+wire("verify", "verify live", async () =>
+  log(JSON.stringify(await api("/verify?batch=20"), null, 2)));
+wire("verifyAll", "verify all", async () => {
+  const totals = {}; let articles = 0, calls = 0;
+  const status = document.getElementById("status");
+  for (;;) {
+    const d = await api("/verify?batch=100");
+    calls++;
+    if (!d.articles) { log(`verify all: queue drained after ${calls} calls`); break; }
+    articles += d.articles;
+    for (const [k, v] of Object.entries(d.by_status || {})) totals[k] = (totals[k] || 0) + v;
+    const line = `verify all: ${articles} articles, ` +
+      Object.entries(totals).map(([k, v]) => `${k} ${v}`).join(", ");
+    status.textContent = line + " (running)";
+    log(line);
+  }
+  log("totals " + JSON.stringify(totals));
+});
+wire("fetchImages", "fetch images", async () =>
+  log(JSON.stringify(await api("/fetch-images?batch=100"), null, 2)));
+wire("publishDry", "publish dry", async () =>
+  log(JSON.stringify(await api("/admin/publish?dry=1", { method: "POST" }), null, 2)));
+wire("publish", "publish", async () =>
+  log(JSON.stringify(await api("/admin/publish", { method: "POST" }), null, 2)));
+wire("sheets", "sheets sync", async () =>
+  log(JSON.stringify(await api("/admin/sheets-sync", { method: "POST" }), null, 2)));
+
+wire("load", "load frames", async () => {
+  const frames = await api("/admin/review");
+  const el = document.getElementById("groups");
+  el.innerHTML = frames.filter((f) => f.members.length > 1 ||
+      f.members.some((m) => m.distance > 2)).map((f) => `
+    <div class="group">
+      <div>frame ${f.frame_id} · ${f.members.length} placements
+        ${f.members.some((m) => m.distance >= 3) ? '<span class="warn">near threshold, eyeball this</span>' : ""}</div>
+      <div class="thumbs">${f.members.map((m) => `
+        <figure style="margin:0">
+          <img src="${mediaURL(m.thumb)}" alt="">
+          <figcaption class="dist">${m.domain} d=${m.distance ?? "?"}</figcaption>
+        </figure>`).join("")}</div>
+      <div class="dist">${(f.caption || "").slice(0, 160)}</div>
+    </div>`).join("");
+  log(`${frames.length} frames loaded, showing multi-member and near-threshold groups`);
+});
+
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const i = new Image();
+    i.crossOrigin = "anonymous";
+    i.onload = () => res(i);
+    i.onerror = rej;
+    i.src = src;
+  });
+}
+</script>
+</body>
+</html>
