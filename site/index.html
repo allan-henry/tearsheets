@@ -1,8 +1,7 @@
 <!doctype html>
-<!-- Created: 2026-09-11 17:20 MST (America/Phoenix). Supersedes the 2026-08-26 index.html.
-     Home page: photo grid (first page, justified rows) nested above the tearsheets feed.
-     Upload to the repo as site/index.html. Uses chrome.js for the masthead, same as
-     the other pages since 2026-08-26. -->
+<!-- Created: 2026-09-11 18:20 MST (America/Phoenix). Supersedes index-2026-09-11-1720.html,
+     which nested the photo grid above the feed by mistake. Home page is the feed only.
+     Upload to the repo as site/index.html. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -12,15 +11,11 @@
 </head>
 <body>
 <header class="site"></header>
-<main>
-  <div class="home-grid"><div class="grid" id="grid"></div></div>
-  <div class="feed" id="feed"></div>
-</main>
+<main><div class="feed" id="feed"></div></main>
 <script type="module">
   import { mountChrome } from "/assets/chrome.js";
-  import { renderGrid, renderFeed } from "/assets/site.js";
+  import { renderFeed } from "/assets/site.js";
   mountChrome("feed");
-  renderGrid(document.getElementById("grid"));
   renderFeed(document.getElementById("feed"));
 </script>
 </body>
