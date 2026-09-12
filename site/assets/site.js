@@ -1,5 +1,9 @@
-/* Created: 2026-09-11 18:30 MST (America/Phoenix)
-   Supersedes the 2026-09-11 18:20 copy. Addition: renderList(), a news-style list
+/* Created: 2026-09-11 18:50 MST (America/Phoenix)
+   Supersedes the 2026-09-11 18:30 copy. Addition: second chip row on list.html
+   filtering by sport (card.sport, written by the 18:50 Worker). Outlet and sport
+   combine; both live in the URL (?outlet=&sport=). Counts on each row reflect the
+   other row's active filter, so the numbers always describe what a click gives you.
+   From 18:30: renderList(), a news-style list
    view (list.html) with outlet filter chips across the top, built entirely from
    feed.json. Active outlet lives in ?outlet= so the view is shareable.
    Carried from 18:20:
@@ -72,29 +76,42 @@ export async function renderList(el) {
   const data = await getJSON("/data/feed.json");
   const items = (data.items || []).slice()
     .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
-  const counts = new Map();
-  for (const c of items) counts.set(c.outlet, (counts.get(c.outlet) || 0) + 1);
-  const outlets = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-  const active = qs.get("outlet") || "";
-  const rows = active ? items.filter((c) => c.outlet === active) : items;
+  const active = { outlet: qs.get("outlet") || "", sport: qs.get("sport") || "" };
+  const matches = (c, skip) =>
+    (skip === "outlet" || !active.outlet || c.outlet === active.outlet) &&
+    (skip === "sport"  || !active.sport  || (c.sport || "Other") === active.sport);
+  const tally = (key, skip) => {
+    const m = new Map();
+    for (const c of items) if (matches(c, skip)) {
+      const k = key === "sport" ? (c.sport || "Other") : c.outlet;
+      m.set(k, (m.get(k) || 0) + 1);
+    }
+    return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  };
+  const rows = items.filter((c) => matches(c));
   const upTo = page() * CONFIG.feedPageSize;
 
-  el.innerHTML = `
-    <nav class="chips" aria-label="outlets">
-      <a class="chip${active ? "" : " on"}" href="?">All <span>${items.length}</span></a>
-      ${outlets.map(([o, n]) =>
-        `<a class="chip${o === active ? " on" : ""}" href="?outlet=${encodeURIComponent(o)}">${esc(prettyOutlet(o))} <span>${n}</span></a>`).join("")}
-    </nav>
-    <div class="rows">${rows.slice(0, upTo).map(rowHTML).join("") ||
-      `<p class="excerpt">Nothing published from ${esc(active)} yet.</p>`}</div>`;
+  const chipRow = (key, label, entries, pretty) => `
+    <nav class="chips" data-key="${key}" aria-label="${label}">
+      <a class="chip${active[key] ? "" : " on"}" data-v="">All <span>${entries.reduce((n, e) => n + e[1], 0)}</span></a>
+      ${entries.map(([v, n]) =>
+        `<a class="chip${v === active[key] ? " on" : ""}" data-v="${esc(v)}">${esc(pretty(v))} <span>${n}</span></a>`).join("")}
+    </nav>`;
+
+  el.innerHTML =
+    chipRow("sport", "sports", tally("sport", "sport"), (v) => v) +
+    chipRow("outlet", "outlets", tally("outlet", "outlet"), prettyOutlet) +
+    `<div class="rows">${rows.slice(0, upTo).map(rowHTML).join("") ||
+      `<p class="excerpt">Nothing published here yet.</p>`}</div>`;
 
   // chips: filter in place, no reload, reset paging
-  el.querySelector(".chips").onclick = (e) => {
+  el.onclick = (e) => {
     const a = e.target.closest("a.chip");
     if (!a) return;
     e.preventDefault();
-    const o = new URL(a.href, location.href).searchParams.get("outlet") || "";
-    o ? qs.set("outlet", o) : qs.delete("outlet");
+    const key = a.closest(".chips").dataset.key;
+    const v = a.dataset.v || "";
+    v ? qs.set(key, v) : qs.delete(key);
     qs.delete("page");
     history.replaceState(null, "", location.pathname + (qs.toString() ? `?${qs}` : ""));
     renderList(el);
@@ -105,7 +122,8 @@ export async function renderList(el) {
 function rowHTML(c) {
   return `<article class="row">
     <div class="row-text">
-      <div class="outlet">${c.favicon ? `<img src="${esc(c.favicon)}" alt="">` : ""}${esc(prettyOutlet(c.outlet))}</div>
+      <div class="outlet">${c.favicon ? `<img src="${esc(c.favicon)}" alt="">` : ""}${esc(prettyOutlet(c.outlet))}
+        ${c.sport ? `<span class="tag">${esc(c.sport)}</span>` : ""}</div>
       <h2><a href="${esc(c.article_url)}" target="_blank" rel="noopener">${esc(c.title || "untitled")}</a></h2>
       ${c.excerpt ? `<p class="excerpt">${esc(c.excerpt)}…</p>` : ""}
       <p class="byline">${c.byline ? esc(c.byline) : '<span class="unread">credit not yet read</span>'}</p>
