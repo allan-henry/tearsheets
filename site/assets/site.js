@@ -1,6 +1,12 @@
-/* Created: 2026-09-11 16:55 MST (America/Phoenix)
-   Supersedes site202608261037.js (the 2026-08-26 10:37 copy with the Load-more
-   closure fix, carried forward here). Changes:
+/* Created: 2026-09-11 18:20 MST (America/Phoenix)
+   Supersedes the 2026-09-11 16:55 copy. Changes:
+     a. Feed cards render an excerpt line and a byline line. Byline reads "credit
+        not yet read" until the verification pass fills it, deliberately visible.
+     b. Grid lightbox: click opens the image with title, outlet, date, excerpt,
+        byline and an "all placements" link. Arrow keys, on-screen arrows, or
+        swipe move through the grid in order. Escape or backdrop click closes.
+        Grid anchors still point at the frame page for middle-click and no-JS.
+   Carried from 16:55:
      1. Justified photo grid. Each cell gets its aspect ratio as a CSS variable
         (--r) and the layout is pure flex: same row height, native aspect, no
         cropping, no gaps. Needs width/height from grid.json (Worker 2026-09-11).
@@ -51,6 +57,8 @@ function cardHTML(c) {
       <div class="outlet">${c.favicon ? `<img src="${esc(c.favicon)}" alt="">` : ""}${esc(c.outlet)}</div>
       <h2><a href="${esc(c.article_url)}" target="_blank" rel="noopener">${esc(c.title || "")}</a></h2>
       <time>${fmtDate(c.date)}</time>
+      ${c.excerpt ? `<p class="excerpt">${esc(c.excerpt)}…</p>` : ""}
+      <p class="byline">${c.byline ? esc(c.byline) : '<span class="unread">credit not yet read</span>'}</p>
       ${c.frame_id ? `<div><a href="/frame.html?id=${c.frame_id}" style="font-size:12px;color:var(--ink-dim)">all placements</a></div>` : ""}
     </div>
   </article>`;
@@ -69,14 +77,15 @@ export async function renderGrid(el) {
   const data = await getJSON("/data/grid.json");
   const items = (data.items || []).filter((g) => g.src);
   const upTo = page() * CONFIG.feedPageSize * 2;
-  el.innerHTML = items.slice(0, upTo).map((g) =>
+  const shown = items.slice(0, upTo);
+  el.innerHTML = shown.map((g, n) =>
     `<a class="${g.orientation}${g.featured ? " featured" : ""}" style="--r:${ratioOf(g).toFixed(4)}"
-        href="/frame.html?id=${g.frame_id}"
+        href="/frame.html?id=${g.frame_id}" data-n="${n}"
         title="frame ${g.frame_id}, instance ${g.instance_id ?? "?"}">
        <img src="${esc(mediaURL(g.src))}" loading="lazy" alt=""
             ${g.width && g.height ? `width="${g.width}" height="${g.height}"` : ""}></a>`).join("");
   moreButton(el, items.length > upTo, () => renderGrid(el));
-  lightbox(el);
+  lightbox(el, shown);
 }
 
 export async function renderFrame(el) {
@@ -117,25 +126,68 @@ function moreButton(el, hasMore, again) {
   el.after(b);
 }
 
-function lightbox(scope) {
+/* Grid lightbox. items is the array of grid.json cells currently rendered, in
+   order; the anchor's data-n indexes into it. One box per page, rebuilt on each
+   renderGrid so Load more extends the scroll range. */
+let lbItems = [];
+let lbIndex = -1;
+function lightbox(scope, items) {
+  lbItems = items || [];
   let box = document.querySelector(".lightbox");
   if (!box) {
     box = document.createElement("div");
     box.className = "lightbox";
-    box.innerHTML = "<img alt=''>";
-    box.onclick = () => box.classList.remove("open");
+    box.innerHTML = `
+      <button class="lb-nav lb-prev" aria-label="previous">&#8249;</button>
+      <figure class="lb-fig"><img alt=""><figcaption class="lb-cap"></figcaption></figure>
+      <button class="lb-nav lb-next" aria-label="next">&#8250;</button>`;
     document.body.append(box);
+    box.addEventListener("click", (e) => {
+      if (e.target === box) closeLB(box);
+    });
+    box.querySelector(".lb-prev").onclick = (e) => { e.stopPropagation(); showLB(box, lbIndex - 1); };
+    box.querySelector(".lb-next").onclick = (e) => { e.stopPropagation(); showLB(box, lbIndex + 1); };
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") box.classList.remove("open");
       if (!box.classList.contains("open")) return;
-      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-        const imgs = [...scope.querySelectorAll("img")];
-        const cur = imgs.findIndex((i) => i.src === box.querySelector("img").src);
-        const next = imgs[(cur + (e.key === "ArrowRight" ? 1 : -1) + imgs.length) % imgs.length];
-        if (next) box.querySelector("img").src = next.src;
-      }
+      if (e.key === "Escape") closeLB(box);
+      if (e.key === "ArrowRight") showLB(box, lbIndex + 1);
+      if (e.key === "ArrowLeft") showLB(box, lbIndex - 1);
+    });
+    let x0 = null;
+    box.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener("touchend", (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) showLB(box, lbIndex + (dx < 0 ? 1 : -1));
     });
   }
+  scope.onclick = (e) => {
+    const a = e.target.closest("a[data-n]");
+    if (!a || e.metaKey || e.ctrlKey || e.button === 1) return;
+    e.preventDefault();
+    showLB(box, Number(a.dataset.n));
+  };
+}
+function showLB(box, n) {
+  if (!lbItems.length) return;
+  lbIndex = (n + lbItems.length) % lbItems.length;
+  const g = lbItems[lbIndex];
+  const img = box.querySelector("img");
+  img.src = mediaURL(g.large || g.src.replace("/600.jpg", "/1600.jpg"));
+  box.querySelector(".lb-cap").innerHTML = `
+    <div class="lb-outlet">${g.favicon ? `<img src="${esc(g.favicon)}" width="14" height="14" alt="">` : ""}${esc(g.outlet || "")}
+      ${g.date ? ` · <time>${fmtDate(g.date)}</time>` : ""}</div>
+    <h2>${g.article_url ? `<a href="${esc(g.article_url)}" target="_blank" rel="noopener">${esc(g.title || "untitled")}</a>` : esc(g.title || "")}</h2>
+    ${g.excerpt ? `<p class="excerpt">${esc(g.excerpt)}…</p>` : ""}
+    <p class="byline">${g.byline ? esc(g.byline) : '<span class="unread">credit not yet read</span>'}</p>
+    <p class="lb-links"><a href="/frame.html?id=${g.frame_id}">all placements</a>
+      <span class="lb-count">${lbIndex + 1} / ${lbItems.length}</span></p>`;
+  box.classList.add("open");
+  document.body.classList.add("lb-open");
+}
+function closeLB(box) {
+  box.classList.remove("open");
+  document.body.classList.remove("lb-open");
 }
 
 async function getJSON(path) {
