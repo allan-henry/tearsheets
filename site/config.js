@@ -11,7 +11,7 @@
 
 export const CONFIG = {
   // Short form, used for the site header on every page.
-  displayName: "Allan Henry",
+  displayName: "Allan Henry",homeUrl: "https://allanhenry.com",
   // Long form, used for the browser title on the feed page and by search engines.
   siteName: "Allan Henry - Imagn-Images / USA Today Sports- Tearsheets",
   subdomain: "tearsheets.allanhenry.com",
