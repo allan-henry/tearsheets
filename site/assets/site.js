@@ -1,5 +1,8 @@
-/* Created: 2026-09-11 18:50 MST (America/Phoenix)
-   Supersedes the 2026-09-11 18:30 copy. Addition: second chip row on list.html
+/* Created: 2026-09-11 19:05 MST (America/Phoenix)
+   Supersedes the 2026-09-11 18:50 copy. Change: list sort is published date desc,
+   then first_seen desc as tie-break, so rows with no date yet still hold a stable
+   newest-first order instead of the feed's daily shuffle.
+   From 18:50: second chip row on list.html
    filtering by sport (card.sport, written by the 18:50 Worker). Outlet and sport
    combine; both live in the URL (?outlet=&sport=). Counts on each row reflect the
    other row's active filter, so the numbers always describe what a click gives you.
@@ -74,8 +77,9 @@ function cardHTML(c) {
 /* ---- list view: outlet chips + news-style rows, from feed.json ---- */
 export async function renderList(el) {
   const data = await getJSON("/data/feed.json");
-  const items = (data.items || []).slice()
-    .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  const items = (data.items || []).slice().sort((a, b) =>
+    String(b.date || "").localeCompare(String(a.date || "")) ||
+    String(b.first_seen || "").localeCompare(String(a.first_seen || "")));
   const active = { outlet: qs.get("outlet") || "", sport: qs.get("sport") || "" };
   const matches = (c, skip) =>
     (skip === "outlet" || !active.outlet || c.outlet === active.outlet) &&
