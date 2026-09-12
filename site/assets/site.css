@@ -1,5 +1,5 @@
-/* Created: 2026-09-11 18:50 MST (America/Phoenix)
-   Supersedes the 18:40 copy: second chip row spacing and .tag for the sport label.
+/* Created: 2026-09-11 19:50 MST (America/Phoenix)
+   Supersedes the 18:50 copy: tag variants (dim, warn) for the list rows.
    Full replacement for site/assets/site.css. Consolidates the 2026-08-25 09:55
    original with the 18:20 and 18:30 blocks from today. The original .feed grid
    and .grid dense-grid rules are removed rather than overridden; the
@@ -74,7 +74,10 @@ main { padding: 24px; max-width: 1400px; margin: 0 auto; }
 }
 .chips + .chips { border-bottom: 0; margin-bottom: 18px; }
 .chips + .chips .chip { font-size: 12px; padding: 4px 10px; }
-.tag { margin-left: auto; font-size: 11px; color: var(--ink-dim); border: 1px solid var(--edge); padding: 1px 7px; }
+.tag { font-size: 11px; color: var(--ink-dim); border: 1px solid var(--edge); padding: 1px 7px; }
+.row .outlet .tag:first-of-type { margin-left: auto; }
+.tag.dim { border-color: transparent; }
+.tag.warn { color: #e6b34a; border-color: #5a4a22; }
 .chip {
   flex: 0 0 auto; font-size: 13px; padding: 6px 12px; border: 1px solid var(--edge);
   color: var(--ink-dim); white-space: nowrap;
