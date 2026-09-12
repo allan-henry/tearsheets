@@ -1,12 +1,12 @@
-/* Created: 2026-09-11 18:30 MST (America/Phoenix)
-   Supersedes the 2026-08-26 09:17 copy. Change: "By outlet" nav entry for list.html.
+/* Created: 2026-09-11 20:55 MST (America/Phoenix)
+   Supersedes the 18:30 copy. Change: the h1 name links to CONFIG.homeUrl when set
+   (the photographer's main site), otherwise to the feed as before.
+   From 18:30: "By outlet" nav entry for list.html.
    Upload to the repo as site/assets/chrome.js.
 
    GENERIC. No personal values live here. Everything this renders comes from
    config.js, so the four page templates carry no name, no links, and no prose.
    Adding a link or changing the bio is a config edit, never a code edit. */
-
-homeUrl: "https://allanhenry.com",
 
 import { CONFIG } from "../config.js";
 
@@ -21,8 +21,8 @@ const PAGE_TITLES = { grid: "Photos", list: "By outlet", frame: "Frame", about: 
 
 /* Call once per page with the active nav key: feed, grid, frame, or about.
    frame is deliberately absent from NAV, it has no nav entry of its own.
-   The h1 is a link home on every page including the feed itself, which is the
-   convention people expect from a masthead. site.css already sets
+   The h1 is a link home on every page. Home is CONFIG.homeUrl if the deployer
+   set one (their main site), else the feed, the masthead convention. site.css already sets
    `a { color: inherit; text-decoration: none }` globally, so it needs no styling. */
 export function mountChrome(active) {
   document.title = active === "feed"
@@ -32,7 +32,7 @@ export function mountChrome(active) {
   const header = document.querySelector("header.site");
   if (!header) return;
   header.innerHTML =
-    `<h1><a href="/">${esc(CONFIG.displayName)}</a></h1>
+    `<h1><a href="${esc(CONFIG.homeUrl || "/")}">${esc(CONFIG.displayName)}</a></h1>
      <nav>${NAV.map((n) =>
        `<a${n.key === active ? ' class="on"' : ""} href="${n.href}">${esc(n.label)}</a>`
      ).join("\n       ")}</nav>`;
