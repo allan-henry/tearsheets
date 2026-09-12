@@ -6,6 +6,8 @@
    config.js, so the four page templates carry no name, no links, and no prose.
    Adding a link or changing the bio is a config edit, never a code edit. */
 
+homeUrl: "https://allanhenry.com",
+
 import { CONFIG } from "../config.js";
 
 const NAV = [
