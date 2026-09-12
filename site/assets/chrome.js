@@ -1,5 +1,5 @@
-/* Created: 2026-08-26 09:17 MST (America/Phoenix)
-   Supersedes the 08:50 copy. Change: the h1 name now links back to the feed.
+/* Created: 2026-09-11 18:30 MST (America/Phoenix)
+   Supersedes the 2026-08-26 09:17 copy. Change: "By outlet" nav entry for list.html.
    Upload to the repo as site/assets/chrome.js.
 
    GENERIC. No personal values live here. Everything this renders comes from
@@ -11,10 +11,11 @@ import { CONFIG } from "../config.js";
 const NAV = [
   { key: "feed", href: "/", label: "Tearsheets" },
   { key: "grid", href: "/grid.html", label: "Photos" },
+  { key: "list", href: "/list.html", label: "By outlet" },
   { key: "about", href: "/about.html", label: "About" },
 ];
 
-const PAGE_TITLES = { grid: "Photos", frame: "Frame", about: "About" };
+const PAGE_TITLES = { grid: "Photos", list: "By outlet", frame: "Frame", about: "About" };
 
 /* Call once per page with the active nav key: feed, grid, frame, or about.
    frame is deliberately absent from NAV, it has no nav entry of its own.
