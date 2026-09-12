@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- Created: 2026-09-11 18:30 MST (America/Phoenix). News-style list view with outlet
+     filter chips. Upload to the repo as site/list.html. Add "/list  /list.html  200"
+     to _redirects if the extensionless URL is wanted; the existing rules do not cover it. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>By outlet</title>
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="site"></header>
+<main><div id="list"></div></main>
+<script type="module">
+  import { mountChrome } from "/assets/chrome.js";
+  import { renderList } from "/assets/site.js";
+  mountChrome("list");
+  renderList(document.getElementById("list"));
+</script>
+</body>
+</html>
