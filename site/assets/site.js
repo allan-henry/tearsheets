@@ -1,5 +1,12 @@
-/* Created: 2026-09-11 19:05 MST (America/Phoenix)
-   Supersedes the 2026-09-11 18:50 copy. Change: list sort is published date desc,
+/* Created: 2026-09-11 19:50 MST (America/Phoenix)
+   Supersedes the 2026-09-11 19:05 copy. Changes:
+     a. The by-outlet list reads /data/placements.json (one row per article, all
+        included domains, tight and loose) and falls back to feed.json if that
+        file is not published yet. Row count is articles, not images.
+     b. Rows show a small tag: "loose match" when only a loose-quoted search found
+        the article, and the credit_status once /verify has run (confirmed shows
+        nothing; unknown / unmatched / unreachable show so they can be chased).
+   From 19:05: list sort is published date desc,
    then first_seen desc as tie-break, so rows with no date yet still hold a stable
    newest-first order instead of the feed's daily shuffle.
    From 18:50: second chip row on list.html
@@ -76,7 +83,9 @@ function cardHTML(c) {
 
 /* ---- list view: outlet chips + news-style rows, from feed.json ---- */
 export async function renderList(el) {
-  const data = await getJSON("/data/feed.json");
+  let data;
+  try { data = await getJSON("/data/placements.json"); }
+  catch { data = await getJSON("/data/feed.json"); }
   const items = (data.items || []).slice().sort((a, b) =>
     String(b.date || "").localeCompare(String(a.date || "")) ||
     String(b.first_seen || "").localeCompare(String(a.first_seen || "")));
@@ -127,6 +136,9 @@ function rowHTML(c) {
   return `<article class="row">
     <div class="row-text">
       <div class="outlet">${c.favicon ? `<img src="${esc(c.favicon)}" alt="">` : ""}${esc(prettyOutlet(c.outlet))}
+        ${c.tight === 0 ? `<span class="tag dim">loose match</span>` : ""}
+        ${c.credit_status && c.credit_status !== "confirmed" ? `<span class="tag warn">${esc(c.credit_status.replace(/_/g, " "))}</span>` : ""}
+        ${c.images > 1 ? `<span class="tag dim">${c.images} images</span>` : ""}
         ${c.sport ? `<span class="tag">${esc(c.sport)}</span>` : ""}</div>
       <h2><a href="${esc(c.article_url)}" target="_blank" rel="noopener">${esc(c.title || "untitled")}</a></h2>
       ${c.excerpt ? `<p class="excerpt">${esc(c.excerpt)}…</p>` : ""}
