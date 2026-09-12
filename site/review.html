@@ -1,6 +1,8 @@
 <!doctype html>
-<!-- Created: 2026-09-11 19:25 MST (America/Phoenix)
-     Supersedes the 2026-08-26 08:18 copy. Changes (handoff 4, Finding 10):
+<!-- Created: 2026-09-11 19:50 MST (America/Phoenix)
+     Supersedes the 19:25 copy. Adds the verify buttons (5a dry, 5 live) and the
+     fetch-images button, so the verification loop runs from this page.
+     From 19:25 (handoff 4, Finding 10):
        1. Every button shows a status line: running with elapsed seconds, then done
           or the error text. Nothing is swallowed into the console any more.
        2. Buttons disable while a request is in flight, so a slow publish cannot be
@@ -40,6 +42,9 @@
     <button id="hash">1. Hash unhashed images</button>
     <button id="clusterDry">2. Cluster (dry run)</button>
     <button id="clusterLive">3. Cluster (live)</button>
+    <button id="verifyDry">5a. Verify (dry run, 20 articles)</button>
+    <button id="verify">5. Verify (live, 20 articles)</button>
+    <button id="fetchImages">6. Fetch images to R2</button>
     <button id="publishDry">4a. Publish (dry run)</button>
     <button id="publish">4. Publish JSON</button>
     <button id="sheets">Sheets sync</button>
@@ -120,6 +125,12 @@ wire("clusterDry", "cluster dry", async () =>
   log(JSON.stringify(await api("/admin/cluster?dry=1", { method: "POST" }), null, 2)));
 wire("clusterLive", "cluster live", async () =>
   log(JSON.stringify(await api("/admin/cluster", { method: "POST" }), null, 2)));
+wire("verifyDry", "verify dry", async () =>
+  log(JSON.stringify(await api("/verify?batch=20&dry=1"), null, 2)));
+wire("verify", "verify live", async () =>
+  log(JSON.stringify(await api("/verify?batch=20"), null, 2)));
+wire("fetchImages", "fetch images", async () =>
+  log(JSON.stringify(await api("/fetch-images?batch=100"), null, 2)));
 wire("publishDry", "publish dry", async () =>
   log(JSON.stringify(await api("/admin/publish?dry=1", { method: "POST" }), null, 2)));
 wire("publish", "publish", async () =>
