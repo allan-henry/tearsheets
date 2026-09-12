@@ -1,5 +1,8 @@
-/* Created: 2026-09-11 18:20 MST (America/Phoenix)
-   Supersedes the 2026-09-11 16:55 copy. Changes:
+/* Created: 2026-09-11 18:30 MST (America/Phoenix)
+   Supersedes the 2026-09-11 18:20 copy. Addition: renderList(), a news-style list
+   view (list.html) with outlet filter chips across the top, built entirely from
+   feed.json. Active outlet lives in ?outlet= so the view is shareable.
+   Carried from 18:20:
      a. Feed cards render an excerpt line and a byline line. Byline reads "credit
         not yet read" until the verification pass fills it, deliberately visible.
      b. Grid lightbox: click opens the image with title, outlet, date, excerpt,
@@ -63,6 +66,60 @@ function cardHTML(c) {
     </div>
   </article>`;
 }
+
+/* ---- list view: outlet chips + news-style rows, from feed.json ---- */
+export async function renderList(el) {
+  const data = await getJSON("/data/feed.json");
+  const items = (data.items || []).slice()
+    .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  const counts = new Map();
+  for (const c of items) counts.set(c.outlet, (counts.get(c.outlet) || 0) + 1);
+  const outlets = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  const active = qs.get("outlet") || "";
+  const rows = active ? items.filter((c) => c.outlet === active) : items;
+  const upTo = page() * CONFIG.feedPageSize;
+
+  el.innerHTML = `
+    <nav class="chips" aria-label="outlets">
+      <a class="chip${active ? "" : " on"}" href="?">All <span>${items.length}</span></a>
+      ${outlets.map(([o, n]) =>
+        `<a class="chip${o === active ? " on" : ""}" href="?outlet=${encodeURIComponent(o)}">${esc(prettyOutlet(o))} <span>${n}</span></a>`).join("")}
+    </nav>
+    <div class="rows">${rows.slice(0, upTo).map(rowHTML).join("") ||
+      `<p class="excerpt">Nothing published from ${esc(active)} yet.</p>`}</div>`;
+
+  // chips: filter in place, no reload, reset paging
+  el.querySelector(".chips").onclick = (e) => {
+    const a = e.target.closest("a.chip");
+    if (!a) return;
+    e.preventDefault();
+    const o = new URL(a.href, location.href).searchParams.get("outlet") || "";
+    o ? qs.set("outlet", o) : qs.delete("outlet");
+    qs.delete("page");
+    history.replaceState(null, "", location.pathname + (qs.toString() ? `?${qs}` : ""));
+    renderList(el);
+  };
+  moreButton(el, rows.length > upTo, () => renderList(el));
+}
+
+function rowHTML(c) {
+  return `<article class="row">
+    <div class="row-text">
+      <div class="outlet">${c.favicon ? `<img src="${esc(c.favicon)}" alt="">` : ""}${esc(prettyOutlet(c.outlet))}</div>
+      <h2><a href="${esc(c.article_url)}" target="_blank" rel="noopener">${esc(c.title || "untitled")}</a></h2>
+      ${c.excerpt ? `<p class="excerpt">${esc(c.excerpt)}…</p>` : ""}
+      <p class="byline">${c.byline ? esc(c.byline) : '<span class="unread">credit not yet read</span>'}</p>
+      <time>${fmtDate(c.date)}</time>
+      ${c.frame_id ? ` · <a class="dim" href="/frame.html?id=${c.frame_id}">all placements</a>` : ""}
+    </div>
+    ${c.src ? `<a class="row-thumb" href="${esc(c.article_url)}" target="_blank" rel="noopener">
+      <img src="${esc(mediaURL(c.src))}" loading="lazy" alt=""></a>` : ""}
+  </article>`;
+}
+
+/* "si.com" -> "SI.com" is not derivable, so just drop "www." and leave the domain.
+   display_name from the domains table would be better; it is not in feed.json yet. */
+function prettyOutlet(d) { return String(d || "").replace(/^www\./, ""); }
 
 /* Justified rows. --r is width/height. site.css turns that into
    flex-grow: var(--r) and flex-basis: calc(var(--r) * row-height), so every cell in
