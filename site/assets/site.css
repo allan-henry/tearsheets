@@ -97,3 +97,24 @@ main { padding: 24px; max-width: 1400px; margin: 0 auto; }
 @media (prefers-reduced-motion: no-preference) {
   .card, .grid img { transition: opacity 0.2s; }
 }
+/* Created: 2026-09-11 16:55 MST (America/Phoenix)
+   APPEND to the end of site/assets/site.css. These rules override the existing
+   .grid rules by coming later; the old landscape/portrait cell classes stay
+   harmless. Justified rows, Lightroom-style: one shared height per row, each
+   image at its native aspect, no cropping, no gaps beyond the 4px gutter.
+   --r is set per cell by site.js as width/height. */
+
+.grid { display: flex; flex-wrap: wrap; gap: 4px; --row: 240px; }
+.grid > a {
+  display: block; height: var(--row); min-width: 0;
+  flex-grow: var(--r, 1.5);
+  flex-basis: calc(var(--r, 1.5) * var(--row));
+}
+.grid > a > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* filler so the final, short row stays left-aligned at row height instead of stretching */
+.grid::after { content: ""; flex-grow: 1000; }
+@media (max-width: 900px) { .grid { --row: 170px; } }
+@media (max-width: 520px) { .grid { --row: 120px; gap: 2px; } }
+
+/* feed card with no photograph: text only */
+.card.noimg .meta { padding-top: 16px; }
