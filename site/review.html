@@ -1,5 +1,9 @@
 <!doctype html>
-<!-- Created: 2026-09-13 14:35 MST (America/Phoenix)
+<!-- Created: 2026-09-13 14:50 MST (America/Phoenix)
+     Supersedes the 14:35 copy. One fix: 5c passes &before=<start time> so the
+     redo loop drains instead of re-reading the same 100 articles forever.
+     Needs Worker 14:50. Also caps the loop at 40 calls as a backstop.
+     14:35 header follows.
      Supersedes the 14:20 copy. Adds the Unresolved table (needs Worker 14:35):
        "7. Load unresolved" lists unknown and unmatched rows on included domains,
        one line each: thumbnail, domain, status, title, a link that opens the
@@ -208,6 +212,7 @@ async function verifyLoop(label, path) {
   const totals = {}; let articles = 0, calls = 0;
   const status = document.getElementById("status");
   for (;;) {
+    if (calls >= 40) { log(`${label}: stopped at 40 calls as a backstop; rerun to continue`); break; }
     const d = await api(path);
     calls++;
     if (!d.articles) { log(`${label}: queue drained after ${calls} calls`); break; }
@@ -224,7 +229,8 @@ wire("verifyRedo", "verify redo", async () => {
   if (!confirm("Redo: re-read every included article and rewrite credit_status on all rows. Ten minutes or more. Continue?")) {
     log("verify redo: cancelled"); return;
   }
-  await verifyLoop("verify redo", "/verify?redo=1&batch=100");
+  const before = encodeURIComponent(new Date().toISOString());
+  await verifyLoop("verify redo", `/verify?redo=1&batch=100&before=${before}`);
 });
 wire("verifyAll", "verify all", async () => {
   const totals = {}; let articles = 0, calls = 0;
