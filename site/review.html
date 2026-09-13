@@ -1,5 +1,15 @@
 <!doctype html>
-<!-- Created: 2026-09-13 14:20 MST (America/Phoenix)
+<!-- Created: 2026-09-13 14:35 MST (America/Phoenix)
+     Supersedes the 14:20 copy. Adds the Unresolved table (needs Worker 14:35):
+       "7. Load unresolved" lists unknown and unmatched rows on included domains,
+       one line each: thumbnail, domain, status, title, a link that opens the
+       article in a new tab, and two per-row buttons. "Check" runs
+       /verify?id=N&dry=1 and shows what the reader saw on that page (every image
+       with its status and credit) under the row. "Redo" runs the same live and
+       refreshes the row. "Hide" sets hidden=1 via the same SQL Allan would run
+       by hand; it is not wired yet and the button is absent on purpose.
+       Filter box narrows by domain. Retires the D1-console list.
+     14:20 header follows.
      Supersedes the 13:10 copy. One addition:
        "5c. Verify all (redo, re-reads every row)": the 5b loop with redo=1.
        Re-classifies every included row from a fresh page read, new or not.
@@ -51,6 +61,17 @@
   .dist { font-size:12px; color:var(--ink-dim); }
   .warn { color:#e6b34a; }
   #log { font-size:12px; color:var(--ink-dim); white-space:pre-wrap; }
+  table.unres { width:100%; border-collapse:collapse; font-size:13px; margin-top:12px; }
+  table.unres td { border-top:1px solid var(--edge); padding:6px 8px; vertical-align:top; }
+  table.unres img { height:56px; display:block; }
+  table.unres a { color:var(--ink); }
+  table.unres .st { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#e6b34a; }
+  table.unres .st.confirmed { color:#6fcf7a; }
+  table.unres .st.other { color:var(--ink-dim); }
+  table.unres button { font:inherit; font-size:12px; padding:3px 8px; background:var(--card); color:var(--ink); border:1px solid var(--edge); margin-right:4px; }
+  table.unres .detail { font-size:12px; color:var(--ink-dim); white-space:pre-wrap; }
+  .unres-bar { display:flex; gap:8px; align-items:center; margin-top:20px; }
+  .unres-bar input { font:inherit; padding:6px 10px; background:var(--card); color:var(--ink); border:1px solid var(--edge); }
 </style>
 </head>
 <body>
@@ -75,6 +96,15 @@
   </div>
   <div id="status" class="dist" style="margin-bottom:8px"></div>
   <div id="log"></div>
+  <div class="unres-bar">
+    <button id="loadUnresolved" class="bar-btn">7. Load unresolved</button>
+    <input id="unresDomain" placeholder="filter by domain (optional)" size="28">
+    <label class="dist"><input type="checkbox" id="unresUnknown" checked> unknown</label>
+    <label class="dist"><input type="checkbox" id="unresUnmatched" checked> unmatched</label>
+    <label class="dist"><input type="checkbox" id="unresUnreachable"> unreachable</label>
+    <span id="unresCount" class="dist"></span>
+  </div>
+  <div id="unresolved"></div>
   <div id="groups"></div>
 </main>
 <script type="module">
@@ -237,6 +267,69 @@ wire("load", "load frames", async () => {
       <div class="dist">${(f.caption || "").slice(0, 160)}</div>
     </div>`).join("");
   log(`${frames.length} frames loaded, showing multi-member and near-threshold groups`);
+});
+
+/* ---- Unresolved table ---- */
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function rowHTML(r) {
+  const thumb = r.thumb ? (r.thumb.startsWith("/") ? mediaURL(r.thumb) : r.thumb) : "";
+  const title = r.article_title || r.title || r.article_url;
+  return `<tr data-id="${r.id}">
+    <td>${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy">` : ""}</td>
+    <td>${esc(r.source_domain)}<br><span class="dist">#${r.id}</span></td>
+    <td><span class="st ${esc(r.credit_status)}">${esc(r.credit_status)}</span>${r.credit_text ? `<br><span class="dist">${esc(r.credit_text)}</span>` : ""}</td>
+    <td><a href="${esc(r.article_url)}" target="_blank" rel="noopener">${esc(String(title).slice(0, 110))}</a></td>
+    <td><button data-act="check">Check</button><button data-act="redo">Redo</button></td>
+  </tr>
+  <tr class="detail-row" data-for="${r.id}" style="display:none"><td></td><td colspan="4" class="detail"></td></tr>`;
+}
+
+async function loadUnresolved() {
+  const statuses = [];
+  if (document.getElementById("unresUnknown").checked) statuses.push("unknown");
+  if (document.getElementById("unresUnmatched").checked) statuses.push("unmatched");
+  if (document.getElementById("unresUnreachable").checked) statuses.push("unreachable");
+  const domain = document.getElementById("unresDomain").value.trim();
+  const q = `/admin/unresolved?status=${statuses.join(",")}&limit=500${domain ? `&domain=${encodeURIComponent(domain)}` : ""}`;
+  const rows = await api(q);
+  document.getElementById("unresCount").textContent = `${rows.length} rows`;
+  document.getElementById("unresolved").innerHTML =
+    `<table class="unres"><tbody>${rows.map(rowHTML).join("")}</tbody></table>`;
+}
+document.getElementById("loadUnresolved").onclick = async () => {
+  const status = document.getElementById("status");
+  try { status.textContent = "load unresolved: running"; await loadUnresolved(); status.textContent = "load unresolved: done"; }
+  catch (e) { status.textContent = "load unresolved: FAILED"; log("ERROR load unresolved: " + (e.message || e)); }
+};
+
+function describe(d) {
+  const det = d.details && d.details[0];
+  if (!det) return JSON.stringify(d, null, 2);
+  const lines = [`status ${det.status}${det.credit ? ", credit: " + det.credit : ""}${det.note ? "\nnote: " + det.note : ""}`,
+    `http ${det.http}  matched: ${det.matched || "none"}`, ""];
+  for (const im of det.page_images || []) {
+    if (/\.(png|svg|ico)(\?|$)|favicon|icon|logo|\.html?$/i.test(im.url) && im.status === "unknown") continue;
+    lines.push(`${im.status.padEnd(9)} ${im.credit || ""}\n          ${im.url}`);
+  }
+  return lines.join("\n");
+}
+
+document.getElementById("unresolved").addEventListener("click", async (ev) => {
+  const btn = ev.target.closest("button[data-act]"); if (!btn) return;
+  const tr = btn.closest("tr"); const id = tr.dataset.id;
+  const det = document.querySelector(`tr.detail-row[data-for="${id}"]`);
+  const cell = det.querySelector(".detail");
+  det.style.display = ""; cell.textContent = btn.dataset.act === "redo" ? "re-reading and writing..." : "reading page...";
+  btn.disabled = true;
+  try {
+    const d = await api(`/verify?id=${id}${btn.dataset.act === "check" ? "&dry=1" : "&redo=1"}`);
+    cell.textContent = describe(d);
+    if (btn.dataset.act === "redo" && d.details && d.details[0]) {
+      const st = tr.querySelector(".st"); st.textContent = d.details[0].status; st.className = "st " + d.details[0].status;
+    }
+  } catch (e) { cell.textContent = "ERROR " + (e.message || e); }
+  finally { btn.disabled = false; }
 });
 
 function loadImage(src, timeoutMs = 30000) {
