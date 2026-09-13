@@ -1,5 +1,10 @@
 <!doctype html>
-<!-- Created: 2026-09-13 13:10 MST (America/Phoenix)
+<!-- Created: 2026-09-13 14:20 MST (America/Phoenix)
+     Supersedes the 13:10 copy. One addition:
+       "5c. Verify all (redo, re-reads every row)": the 5b loop with redo=1.
+       Re-classifies every included row from a fresh page read, new or not.
+       Use after any change to the verify reader. Asks for confirmation.
+     13:10 header follows.
      Supersedes the 2026-09-11 20:10 copy. Three changes:
        1. Hash loop: tries /img/<id>/600.jpg, then /img/<id>/1600.jpg, then
           thumbnail_url. Skip lines name the address that failed instead of
@@ -61,6 +66,7 @@
     <button id="verifyDry">5a. Verify (dry run, 20 articles)</button>
     <button id="verify">5. Verify (live, 20 articles)</button>
     <button id="verifyAll">5b. Verify all (loops 100 at a time)</button>
+    <button id="verifyRedo">5c. Verify all (redo, re-reads every row)</button>
     <button id="fetchImages">6. Fetch images to R2</button>
     <button id="publishDry">4a. Publish (dry run)</button>
     <button id="publish">4. Publish JSON</button>
@@ -168,6 +174,28 @@ wire("verifyDry", "verify dry", async () =>
   log(JSON.stringify(await api("/verify?batch=20&dry=1"), null, 2)));
 wire("verify", "verify live", async () =>
   log(JSON.stringify(await api("/verify?batch=20"), null, 2)));
+async function verifyLoop(label, path) {
+  const totals = {}; let articles = 0, calls = 0;
+  const status = document.getElementById("status");
+  for (;;) {
+    const d = await api(path);
+    calls++;
+    if (!d.articles) { log(`${label}: queue drained after ${calls} calls`); break; }
+    articles += d.articles;
+    for (const [k, v] of Object.entries(d.by_status || {})) totals[k] = (totals[k] || 0) + v;
+    const line = `${label}: ${articles} articles, ` +
+      Object.entries(totals).map(([k, v]) => `${k} ${v}`).join(", ");
+    status.textContent = line + " (running)";
+    log(line);
+  }
+  log("totals " + JSON.stringify(totals));
+}
+wire("verifyRedo", "verify redo", async () => {
+  if (!confirm("Redo: re-read every included article and rewrite credit_status on all rows. Ten minutes or more. Continue?")) {
+    log("verify redo: cancelled"); return;
+  }
+  await verifyLoop("verify redo", "/verify?redo=1&batch=100");
+});
 wire("verifyAll", "verify all", async () => {
   const totals = {}; let articles = 0, calls = 0;
   const status = document.getElementById("status");
