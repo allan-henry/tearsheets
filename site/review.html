@@ -1,5 +1,16 @@
 <!doctype html>
-<!-- Created: 2026-09-11 20:10 MST (America/Phoenix)
+<!-- Created: 2026-09-13 13:10 MST (America/Phoenix)
+     Supersedes the 2026-09-11 20:10 copy. Three changes:
+       1. Hash loop: tries /img/<id>/600.jpg, then /img/<id>/1600.jpg, then
+          thumbnail_url. Skip lines name the address that failed instead of
+          guessing "hotlink block". 30s timeout per image so one stall cannot
+          hang the pass.
+       2. "0a. Harvest (dry run)" and "0. Harvest (live)": GET /run, weekly mode,
+          engines news,images,web. Live asks for confirmation because it spends
+          SerpApi calls (18 per run) and inserts rows. Needs Worker 2026-09-13
+          12:50 or later only for the fetch fixes; /run itself is unchanged.
+       3. Hash skip lines are counted and summarized at the end of the pass.
+     Prior header (2026-09-11 20:10) follows.
      Supersedes the 19:50 copy. Adds "5b. Verify all": loops /verify?batch=100 until
      the Worker reports the queue drained, with running totals in the status line.
      Stops on the first error. Needs Worker 2026-09-11 20:10 or later for batch=100.
@@ -42,6 +53,8 @@
 <main>
   <div class="bar">
     <input id="token" type="password" placeholder="admin token" size="30">
+    <button id="harvestDry">0a. Harvest (dry run)</button>
+    <button id="harvestLive">0. Harvest (live, weekly)</button>
     <button id="hash">1. Hash unhashed images</button>
     <button id="clusterDry">2. Cluster (dry run)</button>
     <button id="clusterLive">3. Cluster (live)</button>
@@ -104,22 +117,44 @@ function wire(id, label, fn) {
   };
 }
 
+wire("harvestDry", "harvest dry", async () =>
+  log(JSON.stringify(await api("/run?mode=weekly&engines=news,images,web&dry=1"), null, 2)));
+wire("harvestLive", "harvest live", async () => {
+  if (!confirm("Live harvest: 18 SerpApi calls, inserts new rows, then a 40-row fetch. Continue?")) {
+    log("harvest live: cancelled"); return;
+  }
+  log(JSON.stringify(await api("/run?mode=weekly&engines=news,images,web"), null, 2));
+});
+
 wire("hash", "hash", async () => {
   const rows = await api("/admin/unhashed");
   log(`hashing ${rows.length} instances`);
   const out = [];
+  let skippedR2 = 0, skippedThird = 0;
   for (const row of rows) {
     // R2-cached images resolve to the media host, which sends the CORS header the
-    // canvas read needs. thumbnail_url is a third-party origin with no such header,
-    // so those still taint and land in the catch below. That is expected, not a bug.
-    const src = row.r2_key ? mediaURL(`/img/${row.id}/600.jpg`) : row.thumbnail_url;
-    if (!src) continue;
-    try {
-      const img = await loadImage(src);
-      out.push({ id: row.id, dhash: dhashFromImage(img),
-        width: img.naturalWidth, height: img.naturalHeight });
-    } catch { log(`skip ${row.id}: image failed (likely hotlink block, wait for R2 fetch)`); }
+    // canvas read needs. Try the 600 derivative, then 1600 (the two are written
+    // together, but one can be missing or undecodable). thumbnail_url is a
+    // third-party origin with no CORS header, so those taint and skip; expected.
+    const candidates = row.r2_key
+      ? [mediaURL(`/img/${row.id}/600.jpg`), mediaURL(`/img/${row.id}/1600.jpg`)]
+      : [row.thumbnail_url].filter(Boolean);
+    if (!candidates.length) continue;
+    let img = null, lastSrc = null;
+    for (const src of candidates) {
+      lastSrc = src;
+      try { img = await loadImage(src); break; } catch {}
+    }
+    if (!img) {
+      if (row.r2_key) { skippedR2++; log(`skip ${row.id}: R2 image failed to load, last tried ${lastSrc}`); }
+      else { skippedThird++; }
+      continue;
+    }
+    out.push({ id: row.id, dhash: dhashFromImage(img),
+      width: img.naturalWidth, height: img.naturalHeight });
   }
+  if (skippedThird) log(`skipped ${skippedThird} rows with no R2 copy (third-party origin, expected until fetched)`);
+  if (skippedR2) log(`skipped ${skippedR2} rows WITH an R2 copy that would not load; those need a look`);
   const res = await api("/admin/hashes", { method: "POST",
     headers: { "content-type": "application/json" }, body: JSON.stringify(out) });
   log(`saved ${res.saved} hashes`);
@@ -176,12 +211,13 @@ wire("load", "load frames", async () => {
   log(`${frames.length} frames loaded, showing multi-member and near-threshold groups`);
 });
 
-function loadImage(src) {
+function loadImage(src, timeoutMs = 30000) {
   return new Promise((res, rej) => {
     const i = new Image();
+    const t = setTimeout(() => rej(new Error("timeout")), timeoutMs);
     i.crossOrigin = "anonymous";
-    i.onload = () => res(i);
-    i.onerror = rej;
+    i.onload = () => { clearTimeout(t); res(i); };
+    i.onerror = () => { clearTimeout(t); rej(new Error("load error")); };
     i.src = src;
   });
 }
