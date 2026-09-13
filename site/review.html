@@ -1,1353 +1,361 @@
-/*
- * Created: 2026-09-13 14:55 MST (America/Phoenix)
- * Supersedes the 14:50 copy. One addition:
- *  17. BUILD constant, returned by GET /health as "build". review.html shows it
- *      next to its own stamp so the live pair is visible without guessing.
- *      Update BUILD whenever this file is edited; it is the one line that
- *      must change every time.
- *
- * 14:50 header follows.
- * Supersedes the 14:35 copy. One fix:
- *  16. /verify?redo=1 accepts &before=<ISO time>. Only rows with verified_at
- *      before that moment (or never verified) are selected, so a redo loop
- *      drains: each rewritten row's verified_at moves past the mark. Without
- *      it the query returned the same first 100 articles by id on every call
- *      and the 5c loop ran the same rows 34 times before it was stopped.
- *      Without &before, redo behaves as before (single-call use).
- *
- * 14:35 header follows.
- * Supersedes the 14:10 copy. One addition:
- *  15. GET /admin/unresolved?status=unknown,unmatched&domain=&limit=300
- *      Rows on included domains whose credit_status is in the list, with
- *      article_url, credit_text, thumb path, title. Feeds the review.html
- *      "Unresolved" table, so the check-and-click-through work is done on the
- *      page rather than in the D1 console. Read-only.
- *
- * 14:10 header follows.
- * Supersedes the 14:00 copy. One change:
- *  14. upsertInstances() counts honestly. D1 reports a last_row_id on updates
- *      too, so every row counted as inserted (harvest reported 716 inserted,
- *      0 updated; D1 showed 190 new, 460 refreshed). The upsert now RETURNS
- *      first_seen = last_seen, which is true only for a fresh insert.
- *
- * 14:00 header follows.
- * Supersedes the 13:50 copy. One change, agreed with Allan:
- *  13. judge(): assignment by elimination. When an image-engine row cannot be
- *      keyed to any page image (publisher re-hosted the file under a new name;
- *      Yahoo does this on every re-render) AND the page has exactly one image
- *      the reader confirmed as Allan's, the row takes that image: status
- *      confirmed, credit from the page, verified_image_url set so fetch pulls
- *      the current full-size file and the hash pass re-measures it. A page with
- *      two or more confirmed images stays unmatched; the rule never guesses
- *      between candidates and never invents a credit. Recorded in note.
- *
- * 13:50 header follows.
- * Supersedes the 13:40 copy. One change:
- *  12. imageKeys() unwraps proxy URLs and percent-decodes before keying, so a
- *      row whose image_url is the Yahoo proxy form keys on the real filename
- *      (ddeb674c...) and matches the page image the reader found. Row 2162
- *      read correctly (page image confirmed) but stayed unmatched on this.
- *
- * 13:40 header follows.
- * Supersedes the 13:30 copy, which was not deployed. Two corrections to it:
- *  10. Paragraphs are assembled until </p>, not flushed per text node. A <p>
- *      containing an <a> arrives as several text nodes; flushing on each one
- *      fragmented excerpts (since 09-11) and would have handed the adopted
- *      figure caption (change 7) only its first fragment, before the credit.
- *  11. Credit lead accepts "Credits:" as well as "Credit:".
- *
- * 13:30 header follows.
- * Supersedes the 12:50 copy. Three changes, all in the verify reader:
- *   7. Caption in the paragraph after the figure (Yahoo Sports / lightyear
- *      pages: <figure> with an empty <figcaption>, then <p>Aug 11, 2026; ...
- *      Mandatory Credit: Allan Henry-Imagn Images</p>). When a figure closes
- *      with no text of its own, the next <p> is attached to it as its caption.
- *      Without this the row matched a different image on the page and took
- *      that image's credit.
- *   8. Resize-proxy URLs that carry the original percent-encoded on the end
- *      (s.yimg.com/lo/mysterio/.../https%3A%2F%2Fmedia.zenfs.com%2F...jpg) are
- *      unwrapped to the original, so the wire filename is visible to the
- *      matcher and fetch pulls the full-size file, not the 300px derivative.
- *      Done in unwrapProxyUrl(), called from upsizeCdnUrl() so fetch benefits too.
- *   9. Credit extraction for "other": when the caption carries a copyright
- *      mark, the credit is read from the mark forward, so
- *      "(c) Owen Ziliak/The Republic / USA TODAY NETWORK via Imagn Images"
- *      records the photographer, not "The Republic / USA TODAY".
- *
- * 12:50 header follows.
- * Supersedes the 12:35 copy. One change:
- *   6. readArticle img collection no longer guesses lazy-load attribute names.
- *      It scans every attribute on the <img>; any value that is an http(s) or
- *      root-relative URL ending in an image extension (or containing /upload/ or
- *      /wp-content/) is a candidate. Preference: srcset-like attributes (take the
- *      largest), then src-like, then anything else. data: URIs are never taken.
- *      Fixes allphly.com and gophnx.com (WordPress lazy-load plugin, unknown
- *      attribute name) whose verified_image_url was a base64 GIF stub resolved
- *      as a path on the article URL.
- *
- * 12:35 header follows.
- * Supersedes the 12:15 copy. Adds:
- *   4. upsizeCdnUrl(): minutemediacdn (si.com, fansided, sodomojo) pages carry a
- *      16px blur placeholder (c_fill,w_16,...) as the img src. Rewrite w_<n> to
- *      w_1600 in the transform segment. Applied in readArticle and again in
- *      fetchImagesToR2, so rows verified before this fix fetch without a redo.
- *   5. fetchImagesToR2 skips hidden=1 rows, and error strings carry the reason
- *      (http status, content-type, or byte count) instead of "empty or blocked".
- *
- * 12:15 header follows.
- * Supersedes the 2026-09-11 20:10 copy. Three changes, nothing else touched:
- *   1. readArticle img collection: data: URIs (lazy-load SVG placeholders) are
- *      never taken as src. Order is now data-src, data-lazy-src, data-original,
- *      then src, first non-data: wins. Same rule for srcset. Fixes rows 155,
- *      159, 162 whose verified_image_url was an inline SVG stub.
- *   2. fetchBytes sends a browser user-agent and Referer: <article_url>, and
- *      rejects non-image content-types. Publisher CDNs (minutemediacdn, allphly,
- *      gophnx, chicagotribune) answered the old bare fetch with a block page.
- *      fetchImagesToR2 now selects article_url to supply the referer.
- *   3. Header route list gains /run (harvest) notes; no code change there.
- *   After deploy: /verify?id=155&redo=1 (and 159, 162), then reset fetch_failed
- *   on the twelve blocked rows and rerun fetch-images. See runbook.
- *
- * Prior header (2026-09-11 20:10) follows unchanged.
- * Supersedes the 19:50 copy. One change: /verify batch cap raised from 40 to 100
- * articles per call (paid plan, 1,000 subrequests per invocation; ~220 used at 100).
- * Default batch is still 20 when the parameter is omitted.
- * From 19:50, two additions:
- *   1. GET /verify: the verification pass. Reads each article page, matches the
- *      cached image to a page image, classifies the credit beside it, and writes
- *      credit_status / credit_text / verified_image_url / excerpt / article_date /
- *      article_title. See the verification section for the status vocabulary.
- *      Requires CONFIG.photographerNames (set via CONFIG_JSON).
- *        /verify?id=N&dry=1      one instance, full extraction, writes nothing
- *        /verify?batch=20&dry=1  next 20 unverified articles, writes nothing
- *        /verify?batch=20        same, writes
- *        /verify?redo=1&batch=20 re-run over already verified rows
- *   2. publish writes data/placements.json: one row per article across all
- *      included domains, tight and loose, image optional, for the by-outlet list.
- *   Publish gates changed accordingly: credit_status 'other' and
- *   'no_credit_on_page' are never cards; article rows become cards once they
- *   have a verified_image_url cached in R2. fetch-images no longer fetches
- *   article thumbnails at all; it fetches verified_image_url when present.
- *   Card date is COALESCE(published_at, article_date); title prefers article_title.
- * From 19:15: sportOf now scans the source domain
- * too (golf.com, northsidebaseball.com carry the sport in their name); previously
- * the hostname was stripped before the keyword scan.
- * From 19:05: cards and grid cells carry
- * first_seen so the list view has a stable tie-break while published dates are
- * still null on images-engine rows.
- * From 18:50: every card and grid cell carries
- * `sport`. Source is frames.league when a wire title supplied one, otherwise a
- * keyword classifier over title, excerpt and URL (CONFIG.sportKeywords, override
- * via CONFIG_JSON). Unmatched rows get "Other" so misses stay visible.
- * The 18:20 additions, still in force:
- *   a. grid.json cells now carry title, outlet, date, article_url, favicon, excerpt
- *      and byline from the canonical instance, for the grid lightbox.
- *   b. cardOf exposes excerpt (article excerpt; today Google's snippet where one
- *      exists) and byline (credit text beside the image; null until the
- *      verification pass writes instances.credit_text). Both slots render on cards
- *      so gaps are visible rather than hidden.
- * The 16:55 changes, still in force:
- *   1. Feed and grid render only images-engine rows with an R2 object measuring
- *      at least CONFIG.minCardEdge on the long edge. Article thumbnails (news and
- *      web rows, image_url 'article:...') and sub-600px files are no longer cards.
- *      They still appear as placements on frame pages. (Handoff 4, Findings 2, 6.)
- *   2. Grid query gains the include filter it never had, and each cell carries
- *      width and height so the front end can lay out justified rows.
- *   3. Frame JSON gains an explicit `hero` (the canonical instance, if it
- *      qualifies as a card) instead of relying on placements[0].
- *   4. New lazily-added column instances.hidden. Set it to 1 from the D1 console
- *      to retire junk (logos, page furniture) from feed and grid without deleting
- *      the row. Rows stay in D1 and in clustering.
- *   5. POST /admin/publish?dry=1 reports survivor counts per filter, writes nothing.
- * Nothing in harvest, fetch, hash, or cluster changed. cluster() remains as
- * documented in handoff 4, Finding 7.
- * Upload to the repo as worker/tearsheets-worker.js, and paste the same contents
- * into Cloudflare Quick Edit.
- *
- * tearsheets harvest Worker. Single file, no build step, Quick Edit deployable.
- *
- * Bindings required (dashboard > Worker > Settings):
- *   DB           D1 database
- *   IMAGES       R2 bucket (images + generated JSON)
- *   SERPAPI_KEY  secret
- *   ADMIN_TOKEN  secret (shared header for admin routes; Cloudflare Access sits in front too)
- *   SHEETS_SA    secret (Google service account JSON, one line) [optional until Sheets is wired]
- *   CONFIG_JSON  plain var (JSON overriding CONFIG below: variants, exclusions, etc.)
- *   SHEET_ID     plain var (Google Sheet id) [optional]
- *
- * Routes (all admin routes require header  x-admin-token: <ADMIN_TOKEN>):
- *   GET  /run?mode=backfill|weekly&engines=news,images,web&dry=1\n *   GET  /fetch-images?batch=100      R2 fetch only, zero SerpApi calls
- *   GET  /verify?batch=20&dry=1     read article pages, classify credits (see below)
- *   GET  /health
- *   GET  /admin/unhashed            instances missing dhash, for review.html
- *   POST /admin/hashes              [{id, dhash, width, height}] computed in-browser
- *   POST /admin/cluster?dry=1       caption grouping first, then Hamming <= threshold
- *   GET  /admin/review              frame groups + distances for the merge/split screen
- *   GET  /admin/unresolved          unknown/unmatched rows for the review table
- *   POST /admin/publish?dry=1       regenerate all JSON to R2 (dry=1: counts only)
- *   POST /admin/sheets-sync         append new rows, read back include/featured
- *
- * Parser functions here are duplicated in site/assets/parsers.js for the
- * browser test harness. Edit both. The fixtures keep them honest.
- */
+<!doctype html>
+<!-- Created: 2026-09-13 14:55 MST (America/Phoenix)
+     Supersedes the 14:50 copy. Adds the version line under the title: this
+     page's PAGE_BUILD, and the Worker's build read from /health on load.
+     Update PAGE_BUILD on every edit of this file.
+     14:50 header follows.
+     Supersedes the 14:35 copy. One fix: 5c passes &before=<start time> so the
+     redo loop drains instead of re-reading the same 100 articles forever.
+     Needs Worker 14:50. Also caps the loop at 40 calls as a backstop.
+     14:35 header follows.
+     Supersedes the 14:20 copy. Adds the Unresolved table (needs Worker 14:35):
+       "7. Load unresolved" lists unknown and unmatched rows on included domains,
+       one line each: thumbnail, domain, status, title, a link that opens the
+       article in a new tab, and two per-row buttons. "Check" runs
+       /verify?id=N&dry=1 and shows what the reader saw on that page (every image
+       with its status and credit) under the row. "Redo" runs the same live and
+       refreshes the row. "Hide" sets hidden=1 via the same SQL Allan would run
+       by hand; it is not wired yet and the button is absent on purpose.
+       Filter box narrows by domain. Retires the D1-console list.
+     14:20 header follows.
+     Supersedes the 13:10 copy. One addition:
+       "5c. Verify all (redo, re-reads every row)": the 5b loop with redo=1.
+       Re-classifies every included row from a fresh page read, new or not.
+       Use after any change to the verify reader. Asks for confirmation.
+     13:10 header follows.
+     Supersedes the 2026-09-11 20:10 copy. Three changes:
+       1. Hash loop: tries /img/<id>/600.jpg, then /img/<id>/1600.jpg, then
+          thumbnail_url. Skip lines name the address that failed instead of
+          guessing "hotlink block". 30s timeout per image so one stall cannot
+          hang the pass.
+       2. "0a. Harvest (dry run)" and "0. Harvest (live)": GET /run, weekly mode,
+          engines news,images,web. Live asks for confirmation because it spends
+          SerpApi calls (18 per run) and inserts rows. Needs Worker 2026-09-13
+          12:50 or later only for the fetch fixes; /run itself is unchanged.
+       3. Hash skip lines are counted and summarized at the end of the pass.
+     Prior header (2026-09-11 20:10) follows.
+     Supersedes the 19:50 copy. Adds "5b. Verify all": loops /verify?batch=100 until
+     the Worker reports the queue drained, with running totals in the status line.
+     Stops on the first error. Needs Worker 2026-09-11 20:10 or later for batch=100.
+     From 19:50: Adds the verify buttons (5a dry, 5 live) and the
+     fetch-images button, so the verification loop runs from this page.
+     From 19:25 (handoff 4, Finding 10):
+       1. Every button shows a status line: running with elapsed seconds, then done
+          or the error text. Nothing is swallowed into the console any more.
+       2. Buttons disable while a request is in flight, so a slow publish cannot be
+          double-clicked (see handoff 4, Finding 7, for why that matters on cluster).
+       3. "4a. Publish (dry run)" hits /admin/publish?dry=1 and reports survivor
+          counts without writing.
+       4. Token persists in sessionStorage for the tab, so a reload does not silently
+          send empty headers and 401.
+     Upload to the repo as site/review.html.
+     Upload to the repo as site/review.html (canonical path, served by exact name).
+     tearsheets merge/split review, behind Cloudflare Access on /review*.
+     Also the dhash engine: the browser decodes images and computes hashes,
+     then POSTs them to the Worker. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review, tearsheets admin</title>
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  .bar { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .bar button, .bar input { font:inherit; padding:8px 14px; background:var(--card);
+    color:var(--ink); border:1px solid var(--edge); }
+  .group { border:1px solid var(--edge); margin-bottom:16px; padding:12px; }
+  .group .thumbs { display:flex; gap:8px; flex-wrap:wrap; }
+  .group img { height:110px; }
+  .dist { font-size:12px; color:var(--ink-dim); }
+  .warn { color:#e6b34a; }
+  #log { font-size:12px; color:var(--ink-dim); white-space:pre-wrap; }
+  table.unres { width:100%; border-collapse:collapse; font-size:13px; margin-top:12px; }
+  table.unres td { border-top:1px solid var(--edge); padding:6px 8px; vertical-align:top; }
+  table.unres img { height:56px; display:block; }
+  table.unres a { color:var(--ink); }
+  table.unres .st { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#e6b34a; }
+  table.unres .st.confirmed { color:#6fcf7a; }
+  table.unres .st.other { color:var(--ink-dim); }
+  table.unres button { font:inherit; font-size:12px; padding:3px 8px; background:var(--card); color:var(--ink); border:1px solid var(--edge); margin-right:4px; }
+  table.unres .detail { font-size:12px; color:var(--ink-dim); white-space:pre-wrap; }
+  .unres-bar { display:flex; gap:8px; align-items:center; margin-top:20px; }
+  .unres-bar input { font:inherit; padding:6px 10px; background:var(--card); color:var(--ink); border:1px solid var(--edge); }
+</style>
+</head>
+<body>
+<header class="site"><h1>Review</h1><div id="builds" class="dist">page 2026-09-13 14:55 MST · worker: checking</div></header>
+<main>
+  <div class="bar">
+    <input id="token" type="password" placeholder="admin token" size="30">
+    <button id="harvestDry">0a. Harvest (dry run)</button>
+    <button id="harvestLive">0. Harvest (live, weekly)</button>
+    <button id="hash">1. Hash unhashed images</button>
+    <button id="clusterDry">2. Cluster (dry run)</button>
+    <button id="clusterLive">3. Cluster (live)</button>
+    <button id="verifyDry">5a. Verify (dry run, 20 articles)</button>
+    <button id="verify">5. Verify (live, 20 articles)</button>
+    <button id="verifyAll">5b. Verify all (loops 100 at a time)</button>
+    <button id="verifyRedo">5c. Verify all (redo, re-reads every row)</button>
+    <button id="fetchImages">6. Fetch images to R2</button>
+    <button id="publishDry">4a. Publish (dry run)</button>
+    <button id="publish">4. Publish JSON</button>
+    <button id="sheets">Sheets sync</button>
+    <button id="load">Load frame groups</button>
+  </div>
+  <div id="status" class="dist" style="margin-bottom:8px"></div>
+  <div id="log"></div>
+  <div class="unres-bar">
+    <button id="loadUnresolved" class="bar-btn">7. Load unresolved</button>
+    <input id="unresDomain" placeholder="filter by domain (optional)" size="28">
+    <label class="dist"><input type="checkbox" id="unresUnknown" checked> unknown</label>
+    <label class="dist"><input type="checkbox" id="unresUnmatched" checked> unmatched</label>
+    <label class="dist"><input type="checkbox" id="unresUnreachable"> unreachable</label>
+    <span id="unresCount" class="dist"></span>
+  </div>
+  <div id="unresolved"></div>
+  <div id="groups"></div>
+</main>
+<script type="module">
+import { dhashFromImage, hamming } from "/assets/parsers.js";
+import { mediaURL } from "/assets/site.js";
 
-/* Generic defaults. Personal values (variants, exclusions, overrides) come from a
- * CONFIG_JSON environment variable on the Worker: a JSON object whose keys override
- * anything below. Deployers never edit this file. Example CONFIG_JSON:
- * {"variants":[{"key":"wire_tight","q":"\"jane doe-wire service\"","tight":true},
- *              {"key":"wire_loose","q":"\"jane doe\" \"wire service\"","tight":false}],
- *  "excludeUrlPatterns":["instagram.com/janedoe"]}
- */
-const BUILD = "2026-09-13 14:55 MST"; // update on every edit; shown by /health and review.html
+const PAGE_BUILD = "2026-09-13 14:55 MST"; // update on every edit
+const WORKER = "/api"; // route the Worker under /api via its route pattern, or set an absolute URL
+const log = (m) => document.getElementById("log").textContent += m + "\n";
+const tokenEl = document.getElementById("token");
+tokenEl.value = sessionStorage.getItem("tearsheets_token") || "";
+tokenEl.oninput = () => sessionStorage.setItem("tearsheets_token", tokenEl.value);
+const hdr = () => ({ "x-admin-token": tokenEl.value });
+fetch(WORKER + "/health").then((r) => r.json()).then((h) => {
+  document.getElementById("builds").textContent = `page ${PAGE_BUILD} · worker ${h.build || "pre-14:55, no build stamp"}`;
+}).catch(() => { document.getElementById("builds").textContent = `page ${PAGE_BUILD} · worker unreachable`; });
 
-const CONFIG = {
-  variants: [
-    { key: "example_tight", q: '"your name-your wire service"', tight: true },
-    { key: "example_loose", q: '"your name" "your wire service"', tight: false },
-  ],
-  // metadata-only domains: harvested for captions, surfaced as license links, never cards
-  stockDomains: ["reutersconnect.com", "imagn.com", "usatsimg.com", "vecteezy.com"],
-  // social platforms are legitimate outlets (a publication posting a frame is a tearsheet).
-  // the type exists for grouping; it does not exclude. exclusion is account-level below.
-  socialDomains: ["instagram.com", "facebook.com", "youtube.com", "x.com", "twitter.com", "tiktok.com"],
-  // URL substrings for accounts the photographer controls; matching results are dropped at harvest
-  excludeUrlPatterns: [],
-  dhashThreshold: 4,
-  derivatives: [600, 1600],
-  backfillPagesPerQuery: { news: 5, images: 12, web: 5 },
-  weeklyPagesPerQuery: { news: 1, images: 1, web: 1 },
-  feedPageSize: 50,
-  // smallest long edge (px) an image needs to render as a card in feed or grid
-  minCardEdge: 600,
-  // the photographer's name(s) as they appear in credit lines, lowercase not required.
-  // REQUIRED for /verify. Set in CONFIG_JSON: {"photographerNames":["jane doe"]}
-  photographerNames: [],
-  // sport classifier: first entry whose keywords match title/excerpt/URL wins.
-  // wire league prefixes (MLB, PGA, WNBA...) map through leagueToSport first.
-  leagueToSport: { MLB: "Baseball", PGA: "Golf", LPGA: "Golf", NBA: "Basketball", WNBA: "Basketball",
-    NCAA: "College", NFL: "Football", NHL: "Hockey", MLS: "Soccer", NASCAR: "Racing", ATP: "Tennis", WTA: "Tennis" },
-  sportKeywords: [
-    ["Golf", ["golf", "pga", "lpga", "masters", "ryder cup", "open championship", "u.s. open", "us open", "tpc", "birdie", "bogey", "fairway", "tee shot", "putt", "phoenix open", "players championship", "tour championship", "presidents cup", "quail hollow", "mcilroy", "tiger woods", "scheffler", "bubba watson", "rickie fowler"]],
-    ["Baseball", ["mlb", "baseball", "spring training", "pitcher", "inning", "diamondbacks", "d-backs", "dodgers", "padres", "rockies", "angels", "cubs", "reds", "cardinals", "brewers", "giants", "white sox", "rangers", "mariners", "guardians", "braves", "yankees", "red sox", "mets", "phillies", "astros", "royals", "twins", "tigers", "orioles", "rays", "blue jays", "nationals", "marlins", "pirates", "athletics"]],
-    ["Basketball", ["nba", "wnba", "basketball", "suns", "mercury", "lakers", "dream", "aces", "sparks", "storm", "liberty", "fever", "sky", "lynx", "wings", "sun ", "mystics", "valkyries", "celtics", "warriors", "nuggets", "clippers", "kings", "mavericks", "spurs", "rockets", "thunder", "jazz", "blazers", "timberwolves", "grizzlies", "pelicans", "heat", "magic", "hawks", "hornets", "wizards", "knicks", "nets", "76ers", "raptors", "bulls", "cavaliers", "pistons", "pacers", "bucks"]],
-    ["Football", ["nfl", "football", "cardinals nfl", "quarterback", "touchdown", "super bowl", "draft pick"]],
-    ["Hockey", ["nhl", "hockey", "coyotes", "goalie", "puck"]],
-    ["Soccer", ["mls", "soccer", "premier league", "world cup", "fifa"]],
-    ["Racing", ["nascar", "indycar", "formula 1", "f1 ", "grand prix", "speedway"]],
-    ["Tennis", ["tennis", "atp", "wta", "wimbledon", "grand slam tennis"]],
-    ["Boxing/MMA", ["ufc", "mma", "boxing", "heavyweight", "welterweight"]],
-    ["College", ["ncaa", "college football", "college basketball", "sun devils", "wildcats", "arizona state", "asu"]],
-  ],
-  sheetImageBase: "https://example.com", // base URL for =IMAGE() thumbnails in the Sheet
-};
-let configApplied = false;
-function applyEnvConfig(env) {
-  if (configApplied) return;
-  configApplied = true;
-  if (!env.CONFIG_JSON) return;
-  try { Object.assign(CONFIG, JSON.parse(env.CONFIG_JSON)); }
-  catch (e) { console.log("CONFIG_JSON parse failed: " + e); }
+async function api(path, opts = {}) {
+  if (!tokenEl.value) throw new Error("admin token is empty");
+  const r = await fetch(WORKER + path, { ...opts, headers: { ...hdr(), ...(opts.headers || {}) } });
+  const text = await r.text();
+  let d; try { d = JSON.parse(text); } catch { d = { raw: text.slice(0, 500) }; }
+  if (!r.ok) throw new Error(`${r.status} ${JSON.stringify(d)}`);
+  return d;
 }
 
-export default {
-  async fetch(req, env, ctx) {
-    applyEnvConfig(env);
-    const url = new URL(req.url);
-    // routed as yourdomain.com/api/* or bare on workers.dev; both work
-    const p = url.pathname.replace(/^\/api(?=\/|$)/, "") || "/";
+/* Wrap a button handler: status line with elapsed time, all buttons disabled while
+   running, errors printed on the page. */
+function wire(id, label, fn) {
+  const btn = document.getElementById(id);
+  const status = document.getElementById("status");
+  btn.onclick = async () => {
+    const all = [...document.querySelectorAll(".bar button")];
+    all.forEach((b) => (b.disabled = true));
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      status.textContent = `${label}: running, ${Math.round((Date.now() - t0) / 1000)}s`;
+    }, 500);
+    status.textContent = `${label}: running`;
     try {
-      if (p === "/health") return json({ ok: true, build: BUILD, time: new Date().toISOString() });
-      if (!isAuthed(req, env)) return json({ error: "unauthorized" }, 401);
-
-      if (p === "/run") return await runHarvest(url, env);
-      if (p === "/fetch-images") {
-        const batch = Math.min(200, Number(url.searchParams.get("batch") || 100));
-        const r2 = await fetchImagesToR2(env, batch);
-        return json({ ...r2, remaining_hint: r2.attempted === batch ? "rerun" : "queue drained" });
-      }
-      if (p === "/verify") return await verify(url, env);
-      if (p === "/admin/unhashed") return await getUnhashed(env);
-      if (p === "/admin/hashes" && req.method === "POST") return await saveHashes(req, env);
-      if (p === "/admin/cluster" && req.method === "POST") return await cluster(url, env);
-      if (p === "/admin/review") return await reviewData(env);
-      if (p === "/admin/unresolved") return await unresolved(url, env);
-      if (p === "/admin/publish" && req.method === "POST") return await publish(url, env);
-      if (p === "/admin/sheets-sync" && req.method === "POST") return await sheetsSync(env);
-      return json({ error: "not found" }, 404);
+      await fn();
+      status.textContent = `${label}: done in ${Math.round((Date.now() - t0) / 1000)}s`;
     } catch (e) {
-      return json({ error: String(e && e.stack || e) }, 500);
+      status.textContent = `${label}: FAILED after ${Math.round((Date.now() - t0) / 1000)}s`;
+      log(`ERROR ${label}: ${e.message || e}`);
+    } finally {
+      clearInterval(tick);
+      all.forEach((b) => (b.disabled = false));
     }
-  },
-  // cron block intentionally absent for now: manual /run until a run survives, then add
-  // "scheduled" handler + cron trigger in wrangler.toml.
-};
-
-function isAuthed(req, env) {
-  // header for review.html, ?token= for browser-address-bar testing
-  const t = req.headers.get("x-admin-token") || new URL(req.url).searchParams.get("token");
-  return t === env.ADMIN_TOKEN;
-}
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj, null, 2), {
-    status, headers: { "content-type": "application/json" },
-  });
-}
-const now = () => new Date().toISOString();
-
-/* ---------------- harvest ---------------- */
-
-async function runHarvest(url, env) {
-  const mode = url.searchParams.get("mode") || "weekly";
-  const dry = url.searchParams.get("dry") === "1";
-  const engines = (url.searchParams.get("engines") || "news").split(",");
-  const pages = mode === "backfill" ? CONFIG.backfillPagesPerQuery : CONFIG.weeklyPagesPerQuery;
-  const report = { mode, dry, engines, calls: 0, found: 0, inserted: 0, updated: 0, byEngine: {} };
-
-  for (const engine of engines) {
-    const items = [];
-    for (const v of CONFIG.variants) {
-      for (let page = 0; page < (pages[engine] || 1); page++) {
-        const results = await serpapi(env, engine, v.q, page);
-        report.calls++;
-        const parsed = results.map((r) => normalizeResult(engine, r, v));
-        items.push(...parsed.filter(Boolean));
-        if (results.length === 0) break; // engine exhausted for this query
-      }
-    }
-    report.byEngine[engine] = items.length;
-    report.found += items.length;
-    if (!dry) {
-      const { inserted, updated } = await upsertInstances(env, items);
-      report.inserted += inserted;
-      report.updated += updated;
-    }
-  }
-
-  if (!dry) {
-    await classifyNewDomains(env);
-    const r2 = await fetchImagesToR2(env, 40); // cap per run, rerun to continue
-    report.imagesFetched = r2.fetched;
-    report.imagesAttempted = r2.attempted;
-    report.imageErrors = r2.errors;
-  }
-  return json(report);
-}
-
-async function serpapi(env, engine, q, page) {
-  const base = "https://serpapi.com/search.json";
-  const params = new URLSearchParams({ q, api_key: env.SERPAPI_KEY, num: "100" });
-  if (engine === "images") {
-    params.set("engine", "google_images");
-    params.set("ijn", String(page));
-  } else if (engine === "news") {
-    params.set("engine", "google");
-    params.set("tbm", "nws");
-    params.set("start", String(page * 100));
-  } else {
-    params.set("engine", "google");
-    params.set("start", String(page * 100));
-  }
-  const res = await fetch(`${base}?${params}`);
-  if (!res.ok) throw new Error(`serpapi ${engine} ${res.status}`);
-  const data = await res.json();
-  return extractResults(engine, data);
-}
-
-// shared with fixtures/tests: pull the result array off a raw SerpApi payload
-function extractResults(engine, data) {
-  if (engine === "images") return data.images_results || [];
-  if (engine === "news") return data.news_results || [];
-  return data.organic_results || [];
-}
-
-function normalizeResult(engine, r, variant) {
-  const articleUrl = r.link || r.source_link || null;
-  if (!articleUrl) return null;
-  // News and web thumbnails are per-search volatile URLs, so they cannot be
-  // dedup identity. For those engines the identity is the article itself;
-  // the volatile thumb lives in thumbnail_url only. The images engine has a
-  // stable original URL, and one article can legitimately carry several frames.
-  const imageUrl = engine === "images" ? (r.original || null) : `article:${articleUrl}`;
-  const domain = hostnameOf(articleUrl);
-  if (!domain) return null;
-  if (CONFIG.excludeUrlPatterns.some((pat) => articleUrl.includes(pat))) return null;
-  const width = r.original_width || null;
-  const height = r.original_height || null;
-  return {
-    article_url: articleUrl,
-    image_url: imageUrl || `pending:${articleUrl}`,
-    thumbnail_url: r.thumbnail || null,
-    title: r.title || null,
-    source_domain: domain,
-    published_at: parseDateLoose(r.date) || null,
-    snippet: r.snippet || null,
-    favicon: r.favicon || null,
-    width, height,
-    orientation: orientationOf(width, height),
-    found_by: variant.key,
-    verified: variant.tight ? 1 : 0,
   };
 }
 
-function hostnameOf(u) {
-  try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return null; }
-}
-
-function orientationOf(w, h) {
-  if (!w || !h) return null;
-  const r = w / h;
-  if (r > 1.15) return "landscape";
-  if (r < 0.87) return "portrait";
-  return "square";
-}
-
-async function upsertInstances(env, items) {
-  let inserted = 0, updated = 0;
-  const t = now();
-  for (const it of items) {
-    const res = await env.DB.prepare(
-      `INSERT INTO instances (article_url,image_url,thumbnail_url,title,source_domain,
-         published_at,snippet,favicon,width,height,orientation,found_by,verified,first_seen,last_seen)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-       ON CONFLICT(article_url,image_url) DO UPDATE SET
-         last_seen=excluded.last_seen,
-         found_by=CASE WHEN instr(instances.found_by, excluded.found_by)=0
-                       THEN instances.found_by || ',' || excluded.found_by
-                       ELSE instances.found_by END,
-         verified=MAX(instances.verified, excluded.verified)
-       RETURNING (first_seen = last_seen) AS fresh`
-    ).bind(it.article_url, it.image_url, it.thumbnail_url, it.title, it.source_domain,
-      it.published_at, it.snippet, it.favicon, it.width, it.height, it.orientation,
-      it.found_by, it.verified, t, t).first();
-    if (res && res.fresh) inserted++; else updated++;
+wire("harvestDry", "harvest dry", async () =>
+  log(JSON.stringify(await api("/run?mode=weekly&engines=news,images,web&dry=1"), null, 2)));
+wire("harvestLive", "harvest live", async () => {
+  if (!confirm("Live harvest: 18 SerpApi calls, inserts new rows, then a 40-row fetch. Continue?")) {
+    log("harvest live: cancelled"); return;
   }
-  return { inserted, updated };
-}
+  log(JSON.stringify(await api("/run?mode=weekly&engines=news,images,web"), null, 2));
+});
 
-async function classifyNewDomains(env) {
-  const t = now();
-  const { results } = await env.DB.prepare(
-    `SELECT DISTINCT source_domain d FROM instances
-     WHERE source_domain NOT IN (SELECT domain FROM domains)`
-  ).all();
-  for (const row of results) {
-    const type = classifyDomain(row.d);
-    // "a reader encountered the photo inside a story": publications default in,
-    // stock and social default out, pending the Sheet's include checkbox
-    const include = type === "stock" ? 0 : 1;
-    await env.DB.prepare(
-      `INSERT OR IGNORE INTO domains (domain,include,type,display_name,first_seen)
-       VALUES (?,?,?,?,?)`
-    ).bind(row.d, include, type, prettyDomain(row.d), t).run();
-  }
-  await env.DB.prepare(
-    `UPDATE domains SET frame_count =
-       (SELECT COUNT(DISTINCT frame_id) FROM instances
-        WHERE source_domain = domains.domain AND frame_id IS NOT NULL)`
-  ).run();
-}
-
-function classifyDomain(d) {
-  if (CONFIG.stockDomains.some((s) => d === s || d.endsWith("." + s))) return "stock";
-  if (CONFIG.socialDomains.some((s) => d === s || d.endsWith("." + s))) return "social";
-  if (d === "msn.com" || d.endsWith(".msn.com")) return "distribution"; // MSN is explicitly a tearsheet
-  return "publication";
-}
-function prettyDomain(d) {
-  const base = d.split(".").slice(0, -1).join(".") || d;
-  return base.charAt(0).toUpperCase() + base.slice(1);
-}
-
-/* ---------------- images to R2 ---------------- */
-
-async function fetchImagesToR2(env, cap) {
-  // fetch_failed column added lazily so existing databases need no manual migration.
-  try { await env.DB.prepare(`ALTER TABLE instances ADD COLUMN fetch_failed INTEGER DEFAULT 0`).run(); } catch {}
-  // Article rows (news/web) are fetched only once /verify has supplied the real
-  // credited image as verified_image_url. Their SerpApi thumbnails are 16 to 92px
-  // and frequently another photographer's frame (handoff 4, Finding 2); never again.
-  const { results } = await env.DB.prepare(
-    `SELECT id, image_url, thumbnail_url, verified_image_url, article_url FROM instances
-     WHERE r2_key IS NULL AND COALESCE(fetch_failed, 0) < 3 AND COALESCE(hidden, 0) = 0
-       AND (verified_image_url IS NOT NULL
-            OR (image_url NOT LIKE 'article:%' AND image_url NOT LIKE 'pending:%'))
-     LIMIT ?`
-  ).bind(cap).all();
-  let ok = 0;
-  const errors = [];
-  for (const row of results) {
-    const src = upsizeCdnUrl(row.verified_image_url || row.image_url);
-    if (!src || src.startsWith("article:") || src.startsWith("pending:")) continue;
-    // SerpApi serves favicons from /images/i/ and real thumbnails from
-    // /searches/<id>/images/. A favicon fetches clean, lands well under 1KB, and
-    // burns all three strikes before retiring. Retire it immediately instead.
-    if (src.includes("serpapi.com/images/i/")) {
-      await env.DB.prepare(`UPDATE instances SET fetch_failed = 3 WHERE id=?`).bind(row.id).run();
+wire("hash", "hash", async () => {
+  const rows = await api("/admin/unhashed");
+  log(`hashing ${rows.length} instances`);
+  const out = [];
+  let skippedR2 = 0, skippedThird = 0;
+  for (const row of rows) {
+    // R2-cached images resolve to the media host, which sends the CORS header the
+    // canvas read needs. Try the 600 derivative, then 1600 (the two are written
+    // together, but one can be missing or undecodable). thumbnail_url is a
+    // third-party origin with no CORS header, so those taint and skip; expected.
+    const candidates = row.r2_key
+      ? [mediaURL(`/img/${row.id}/600.jpg`), mediaURL(`/img/${row.id}/1600.jpg`)]
+      : [row.thumbnail_url].filter(Boolean);
+    if (!candidates.length) continue;
+    let img = null, lastSrc = null;
+    for (const src of candidates) {
+      lastSrc = src;
+      try { img = await loadImage(src); break; } catch {}
+    }
+    if (!img) {
+      if (row.r2_key) { skippedR2++; log(`skip ${row.id}: R2 image failed to load, last tried ${lastSrc}`); }
+      else { skippedThird++; }
       continue;
     }
-    try {
-      // Fetch the original bytes once, buffered, and validate before storing.
-      // Resizing via cf.image needs Image Resizing on a zone; try it per width
-      // but fall back to the original bytes so objects are never empty.
-      const orig = await fetchBytes(src, null, row.article_url);
-      if (!orig) throw new Error(lastFetchWhy || "empty or blocked");
-      for (const w of CONFIG.derivatives) {
-        const resized = await fetchBytes(src, w, row.article_url);
-        const bytes = resized || orig;
-        await env.IMAGES.put(`img/${row.id}/${w}.jpg`, bytes, {
-          httpMetadata: { contentType: "image/jpeg", cacheControl: "public, max-age=31536000, immutable" },
-        });
-      }
-      await env.DB.prepare(`UPDATE instances SET r2_key=? WHERE id=?`)
-        .bind(`img/${row.id}`, row.id).run();
-      ok++;
-    } catch (e) {
-      await env.DB.prepare(`UPDATE instances SET fetch_failed = COALESCE(fetch_failed, 0) + 1 WHERE id=?`)
-        .bind(row.id).run();
-      errors.push(`${row.id} ${hostnameOf(src) || src}: ${e.message || e}`);
-    }
+    out.push({ id: row.id, dhash: dhashFromImage(img),
+      width: img.naturalWidth, height: img.naturalHeight });
   }
-  return { fetched: ok, attempted: results.length, errors: errors.slice(0, 15) };
+  if (skippedThird) log(`skipped ${skippedThird} rows with no R2 copy (third-party origin, expected until fetched)`);
+  if (skippedR2) log(`skipped ${skippedR2} rows WITH an R2 copy that would not load; those need a look`);
+  const res = await api("/admin/hashes", { method: "POST",
+    headers: { "content-type": "application/json" }, body: JSON.stringify(out) });
+  log(`saved ${res.saved} hashes`);
+});
+
+wire("clusterDry", "cluster dry", async () =>
+  log(JSON.stringify(await api("/admin/cluster?dry=1", { method: "POST" }), null, 2)));
+wire("clusterLive", "cluster live", async () =>
+  log(JSON.stringify(await api("/admin/cluster", { method: "POST" }), null, 2)));
+wire("verifyDry", "verify dry", async () =>
+  log(JSON.stringify(await api("/verify?batch=20&dry=1"), null, 2)));
+wire("verify", "verify live", async () =>
+  log(JSON.stringify(await api("/verify?batch=20"), null, 2)));
+async function verifyLoop(label, path) {
+  const totals = {}; let articles = 0, calls = 0;
+  const status = document.getElementById("status");
+  for (;;) {
+    if (calls >= 40) { log(`${label}: stopped at 40 calls as a backstop; rerun to continue`); break; }
+    const d = await api(path);
+    calls++;
+    if (!d.articles) { log(`${label}: queue drained after ${calls} calls`); break; }
+    articles += d.articles;
+    for (const [k, v] of Object.entries(d.by_status || {})) totals[k] = (totals[k] || 0) + v;
+    const line = `${label}: ${articles} articles, ` +
+      Object.entries(totals).map(([k, v]) => `${k} ${v}`).join(", ");
+    status.textContent = line + " (running)";
+    log(line);
+  }
+  log("totals " + JSON.stringify(totals));
+}
+wire("verifyRedo", "verify redo", async () => {
+  if (!confirm("Redo: re-read every included article and rewrite credit_status on all rows. Ten minutes or more. Continue?")) {
+    log("verify redo: cancelled"); return;
+  }
+  const before = encodeURIComponent(new Date().toISOString());
+  await verifyLoop("verify redo", `/verify?redo=1&batch=100&before=${before}`);
+});
+wire("verifyAll", "verify all", async () => {
+  const totals = {}; let articles = 0, calls = 0;
+  const status = document.getElementById("status");
+  for (;;) {
+    const d = await api("/verify?batch=100");
+    calls++;
+    if (!d.articles) { log(`verify all: queue drained after ${calls} calls`); break; }
+    articles += d.articles;
+    for (const [k, v] of Object.entries(d.by_status || {})) totals[k] = (totals[k] || 0) + v;
+    const line = `verify all: ${articles} articles, ` +
+      Object.entries(totals).map(([k, v]) => `${k} ${v}`).join(", ");
+    status.textContent = line + " (running)";
+    log(line);
+  }
+  log("totals " + JSON.stringify(totals));
+});
+wire("fetchImages", "fetch images", async () =>
+  log(JSON.stringify(await api("/fetch-images?batch=100"), null, 2)));
+wire("publishDry", "publish dry", async () =>
+  log(JSON.stringify(await api("/admin/publish?dry=1", { method: "POST" }), null, 2)));
+wire("publish", "publish", async () =>
+  log(JSON.stringify(await api("/admin/publish", { method: "POST" }), null, 2)));
+wire("sheets", "sheets sync", async () =>
+  log(JSON.stringify(await api("/admin/sheets-sync", { method: "POST" }), null, 2)));
+
+wire("load", "load frames", async () => {
+  const frames = await api("/admin/review");
+  const el = document.getElementById("groups");
+  el.innerHTML = frames.filter((f) => f.members.length > 1 ||
+      f.members.some((m) => m.distance > 2)).map((f) => `
+    <div class="group">
+      <div>frame ${f.frame_id} · ${f.members.length} placements
+        ${f.members.some((m) => m.distance >= 3) ? '<span class="warn">near threshold, eyeball this</span>' : ""}</div>
+      <div class="thumbs">${f.members.map((m) => `
+        <figure style="margin:0">
+          <img src="${mediaURL(m.thumb)}" alt="">
+          <figcaption class="dist">${m.domain} d=${m.distance ?? "?"}</figcaption>
+        </figure>`).join("")}</div>
+      <div class="dist">${(f.caption || "").slice(0, 160)}</div>
+    </div>`).join("");
+  log(`${frames.length} frames loaded, showing multi-member and near-threshold groups`);
+});
+
+/* ---- Unresolved table ---- */
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function rowHTML(r) {
+  const thumb = r.thumb ? (r.thumb.startsWith("/") ? mediaURL(r.thumb) : r.thumb) : "";
+  const title = r.article_title || r.title || r.article_url;
+  return `<tr data-id="${r.id}">
+    <td>${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy">` : ""}</td>
+    <td>${esc(r.source_domain)}<br><span class="dist">#${r.id}</span></td>
+    <td><span class="st ${esc(r.credit_status)}">${esc(r.credit_status)}</span>${r.credit_text ? `<br><span class="dist">${esc(r.credit_text)}</span>` : ""}</td>
+    <td><a href="${esc(r.article_url)}" target="_blank" rel="noopener">${esc(String(title).slice(0, 110))}</a></td>
+    <td><button data-act="check">Check</button><button data-act="redo">Redo</button></td>
+  </tr>
+  <tr class="detail-row" data-for="${r.id}" style="display:none"><td></td><td colspan="4" class="detail"></td></tr>`;
 }
 
-/* Placeholder derivatives to full-size. Cloudinary-style transforms encode the
-   width in the path; minutemediacdn serves a 16px blur as the img src. */
-/* Resize proxies that embed the original URL, percent-encoded, as the path tail.
-   Yahoo (s.yimg.com/lo/mysterio) is the known case; the pattern is generic:
-   a path segment that decodes to http(s)://... */
-function unwrapProxyUrl(u) {
-  if (!u) return u;
+async function loadUnresolved() {
+  const statuses = [];
+  if (document.getElementById("unresUnknown").checked) statuses.push("unknown");
+  if (document.getElementById("unresUnmatched").checked) statuses.push("unmatched");
+  if (document.getElementById("unresUnreachable").checked) statuses.push("unreachable");
+  const domain = document.getElementById("unresDomain").value.trim();
+  const q = `/admin/unresolved?status=${statuses.join(",")}&limit=500${domain ? `&domain=${encodeURIComponent(domain)}` : ""}`;
+  const rows = await api(q);
+  document.getElementById("unresCount").textContent = `${rows.length} rows`;
+  document.getElementById("unresolved").innerHTML =
+    `<table class="unres"><tbody>${rows.map(rowHTML).join("")}</tbody></table>`;
+}
+document.getElementById("loadUnresolved").onclick = async () => {
+  const status = document.getElementById("status");
+  try { status.textContent = "load unresolved: running"; await loadUnresolved(); status.textContent = "load unresolved: done"; }
+  catch (e) { status.textContent = "load unresolved: FAILED"; log("ERROR load unresolved: " + (e.message || e)); }
+};
+
+function describe(d) {
+  const det = d.details && d.details[0];
+  if (!det) return JSON.stringify(d, null, 2);
+  const lines = [`status ${det.status}${det.credit ? ", credit: " + det.credit : ""}${det.note ? "\nnote: " + det.note : ""}`,
+    `http ${det.http}  matched: ${det.matched || "none"}`, ""];
+  for (const im of det.page_images || []) {
+    if (/\.(png|svg|ico)(\?|$)|favicon|icon|logo|\.html?$/i.test(im.url) && im.status === "unknown") continue;
+    lines.push(`${im.status.padEnd(9)} ${im.credit || ""}\n          ${im.url}`);
+  }
+  return lines.join("\n");
+}
+
+document.getElementById("unresolved").addEventListener("click", async (ev) => {
+  const btn = ev.target.closest("button[data-act]"); if (!btn) return;
+  const tr = btn.closest("tr"); const id = tr.dataset.id;
+  const det = document.querySelector(`tr.detail-row[data-for="${id}"]`);
+  const cell = det.querySelector(".detail");
+  det.style.display = ""; cell.textContent = btn.dataset.act === "redo" ? "re-reading and writing..." : "reading page...";
+  btn.disabled = true;
   try {
-    const url = new URL(u);
-    const segs = url.pathname.split("/");
-    for (let i = segs.length - 1; i >= 0; i--) {
-      if (/^https?%3A%2F%2F/i.test(segs[i])) {
-        const inner = decodeURIComponent(segs.slice(i).join("/"));
-        return new URL(inner).href;
-      }
+    const d = await api(`/verify?id=${id}${btn.dataset.act === "check" ? "&dry=1" : "&redo=1"}`);
+    cell.textContent = describe(d);
+    if (btn.dataset.act === "redo" && d.details && d.details[0]) {
+      const st = tr.querySelector(".st"); st.textContent = d.details[0].status; st.className = "st " + d.details[0].status;
     }
-    return u;
-  } catch { return u; }
-}
-function upsizeCdnUrl(u) {
-  if (!u) return u;
-  u = unwrapProxyUrl(u);
-  try {
-    const url = new URL(u);
-    if (/minutemediacdn\.com$/i.test(url.hostname)) {
-      url.pathname = url.pathname.replace(/(\/c_fill,[^/]*?)w_\d+(,|\/)/, "$1w_1600$2");
-    }
-    return url.href;
-  } catch { return u; }
-}
-let lastFetchWhy = "";
-async function fetchBytes(src, width, referer) {
-  try {
-    // Publisher CDNs hotlink-protect: a bare fetch with a non-browser UA gets a
-    // block page or an empty 200. Present as a browser arriving from the article.
-    const headers = {
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
-      accept: "image/avif,image/webp,image/jpeg,image/png,image/*;q=0.8,*/*;q=0.5",
-      "accept-language": "en-US,en;q=0.9",
-    };
-    if (referer && /^https?:/i.test(referer)) headers.referer = referer;
-    const opts = { headers, redirect: "follow" };
-    if (width) opts.cf = { image: { width, fit: "scale-down", quality: 82 } };
-    const res = await fetch(src, opts);
-    if (!res.ok) { lastFetchWhy = `http ${res.status}`; return null; }
-    const ct = (res.headers.get("content-type") || "").toLowerCase();
-    if (ct && !ct.startsWith("image/")) { lastFetchWhy = `content-type ${ct.split(";")[0]}`; return null; }
-    const buf = await res.arrayBuffer();
-    if (buf.byteLength <= 1000) { lastFetchWhy = `${buf.byteLength} bytes (placeholder)`; return null; }
-    lastFetchWhy = "";
-    return buf;
-  } catch (e) { lastFetchWhy = `fetch threw ${e.message || e}`; return null; }
-}
+  } catch (e) { cell.textContent = "ERROR " + (e.message || e); }
+  finally { btn.disabled = false; }
+});
 
-/* ---------------- caption + title parsers (duplicated in site/assets/parsers.js) ---------------- */
-
-// "Aug 11, 2026; Phoenix, Arizona, USA; Colorado Rockies third baseman Kyle Karros (12) at bat..."
-function parseCaption(snippet) {
-  if (!snippet) return null;
-  const m = snippet.match(
-    /^([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s*\d{4});\s*([^;]+);\s*(.+)$/s
-  );
-  if (!m) return null;
-  const eventDate = parseDateLoose(m[1]);
-  const location = m[2].trim();
-  const subject = m[3].trim();
-  const player = parsePlayerAnchor(subject);
-  return { event_date: eventDate, location, subject, player, caption: snippet.trim() };
-}
-
-// "{Team} {position} {Name} ({number})"
-function parsePlayerAnchor(subject) {
-  const m = subject.match(
-    /\b([A-Z][A-Za-z.'-]+(?:\s+[A-Z][A-Za-z.'-]+)?)\s+\((\d{1,2})\)/
-  );
-  return m ? m[1] : null;
-}
-
-// "MLB: Colorado Rockies at Arizona Diamondbacks"  |  "PGA: WM Phoenix Open"
-function parseTitle(title) {
-  if (!title || title.trim().toLowerCase() === "test") return null; // Lohud case
-  const m = title.match(/^([A-Z]{2,6}):\s*(.+)$/);
-  if (!m) return null;
-  const league = m[1];
-  const rest = m[2].trim();
-  const vs = rest.match(/^(.+?)\s+at\s+(.+)$/i);
-  if (vs) return { league, team_away: vs[1].trim(), team_home: vs[2].trim(), event_name: null };
-  return { league, team_away: null, team_home: null, event_name: rest };
-}
-
-function parseDateLoose(s) {
-  if (!s) return null;
-  const d = new Date(s);
-  return isNaN(d) ? null : d.toISOString().slice(0, 10);
-}
-
-/* ---------------- hashing + clustering ---------------- */
-
-async function getUnhashed(env) {
-  const { results } = await env.DB.prepare(
-    `SELECT id, r2_key, thumbnail_url, image_url FROM instances
-     WHERE dhash IS NULL AND source_domain IN
-       (SELECT domain FROM domains WHERE include=1) LIMIT 200`
-  ).all();
-  return json(results);
-}
-
-async function saveHashes(req, env) {
-  const rows = await req.json();
-  for (const r of rows) {
-    await env.DB.prepare(
-      `UPDATE instances SET dhash=?,
-         width=COALESCE(width, ?), height=COALESCE(height, ?),
-         orientation=COALESCE(orientation, ?) WHERE id=?`
-    ).bind(r.dhash, r.width || null, r.height || null,
-      orientationOf(r.width, r.height), r.id).run();
-  }
-  return json({ saved: rows.length });
-}
-
-function hamming(hexA, hexB) {
-  let x = BigInt("0x" + hexA) ^ BigInt("0x" + hexB);
-  let c = 0;
-  while (x) { c += Number(x & 1n); x >>= 1n; }
-  return c;
-}
-
-async function cluster(url, env) {
-  const dry = url.searchParams.get("dry") === "1";
-  const { results: inst } = await env.DB.prepare(
-    `SELECT id, dhash, snippet, title, orientation FROM instances
-     WHERE frame_id IS NULL AND source_domain IN
-       (SELECT domain FROM domains WHERE include=1)`
-  ).all();
-
-  // Pass 1: exact caption match. Same Imagn caption = same frame by definition.
-  const byCaption = new Map();
-  const remaining = [];
-  for (const i of inst) {
-    const cap = parseCaption(i.snippet);
-    if (cap) {
-      const key = cap.caption.slice(0, 180);
-      if (!byCaption.has(key)) byCaption.set(key, []);
-      byCaption.get(key).push({ ...i, parsed: cap });
-    } else remaining.push(i);
-  }
-
-  // Pass 2: Hamming clustering on what captions did not cover.
-  const hashed = remaining.filter((i) => i.dhash);
-  const groups = [];
-  const assigned = new Set();
-  for (const a of hashed) {
-    if (assigned.has(a.id)) continue;
-    const g = [a];
-    assigned.add(a.id);
-    for (const b of hashed) {
-      if (assigned.has(b.id)) continue;
-      if (hamming(a.dhash, b.dhash) <= CONFIG.dhashThreshold) { g.push(b); assigned.add(b.id); }
-    }
-    groups.push(g);
-  }
-  const singles = remaining.filter((i) => !i.dhash).map((i) => [i]);
-
-  const plan = {
-    captionGroups: byCaption.size,
-    hashGroups: groups.length,
-    unhashedSingles: singles.length,
-    dry,
-  };
-  if (dry) return json(plan);
-
-  for (const [, members] of byCaption) await writeFrame(env, members, members[0].parsed);
-  for (const g of [...groups, ...singles]) {
-    const cap = parseCaption(g[0].snippet);
-    const tit = parseTitle(g[0].title);
-    await writeFrame(env, g, cap, tit);
-  }
-  await classifyNewDomains(env);
-  return json({ ...plan, written: true });
-}
-
-async function writeFrame(env, members, cap, tit) {
-  tit = tit || parseTitle(members[0].title);
-  const res = await env.DB.prepare(
-    `INSERT INTO frames (canonical_instance_id, dhash, event_date, location, league,
-       team_home, team_away, event_name, player, caption, orientation)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`
-  ).bind(members[0].id, members[0].dhash || null,
-    cap?.event_date || null, cap?.location || null, tit?.league || null,
-    tit?.team_home || null, tit?.team_away || null, tit?.event_name || null,
-    cap?.player || null, cap?.caption || null, members[0].orientation || null).run();
-  const fid = res.meta.last_row_id;
-  for (const m of members) {
-    await env.DB.prepare(`UPDATE instances SET frame_id=? WHERE id=?`).bind(fid, m.id).run();
-  }
-}
-
-async function unresolved(url, env) {
-  const statuses = (url.searchParams.get("status") || "unknown,unmatched").split(",").map((x) => x.trim()).filter(Boolean);
-  const domain = url.searchParams.get("domain") || null;
-  const limit = Math.min(1000, Number(url.searchParams.get("limit") || 300));
-  const { results } = await env.DB.prepare(
-    `SELECT i.id, i.source_domain, i.credit_status, i.credit_text, i.article_url, i.image_url,
-            i.verified_image_url, i.r2_key, i.thumbnail_url, i.title, i.article_title, i.verified_at, i.hidden
-     FROM instances i
-     WHERE i.credit_status IN (${statuses.map(() => "?").join(",")})
-       AND i.source_domain IN (SELECT domain FROM domains WHERE include=1)
-       AND COALESCE(i.hidden,0)=0
-       ${domain ? "AND i.source_domain = ?" : ""}
-     ORDER BY i.source_domain, i.id LIMIT ?`
-  ).bind(...statuses, ...(domain ? [domain] : []), limit).all();
-  return json(results.map((r) => ({
-    ...r,
-    thumb: r.r2_key ? `/img/${r.id}/600.jpg` : (r.thumbnail_url || null),
-  })));
-}
-
-async function reviewData(env) {
-  const { results } = await env.DB.prepare(
-    `SELECT f.id frame_id, f.dhash fhash, f.caption, i.id instance_id, i.dhash,
-            i.thumbnail_url, i.r2_key, i.source_domain, i.title
-     FROM frames f JOIN instances i ON i.frame_id = f.id
-     ORDER BY f.id DESC LIMIT 2000`
-  ).all();
-  const frames = {};
-  for (const r of results) {
-    (frames[r.frame_id] ||= { frame_id: r.frame_id, caption: r.caption, members: [] });
-    frames[r.frame_id].members.push({
-      instance_id: r.instance_id,
-      domain: r.source_domain,
-      title: r.title,
-      thumb: r.r2_key ? `/img/${r.instance_id}/600.jpg` : r.thumbnail_url,
-      distance: r.dhash && r.fhash ? hamming(r.dhash, r.fhash) : null,
-    });
-  }
-  return json(Object.values(frames));
-}
-
-/* ---------------- publish JSON ---------------- */
-
-/* A row is a CARD when the pipeline has a real file it can stand behind: it came
-   from the images engine (a stable original URL, not an article thumbnail), it is
-   cached in R2, it measures at least minCardEdge on the long edge, and nobody has
-   hidden it. Everything else is still a placement, just not a photograph. */
-function cardSQL(alias) {
-  const a = alias;
-  return `(${a}.image_url NOT LIKE 'article:%' OR ${a}.verified_image_url IS NOT NULL)
-      AND ${a}.image_url NOT LIKE 'pending:%'
-      AND ${a}.r2_key IS NOT NULL
-      AND COALESCE(${a}.hidden, 0) = 0
-      AND COALESCE(${a}.credit_status, '') NOT IN ('other', 'no_credit_on_page')
-      AND MAX(COALESCE(${a}.width, 0), COALESCE(${a}.height, 0)) >= ${Number(CONFIG.minCardEdge) || 0}`;
-}
-
-async function publish(url, env) {
-  const dry = url.searchParams.get("dry") === "1";
-  await ensureVerifyColumns(env);
-
-  const includeSQL = `i.source_domain IN (SELECT domain FROM domains WHERE include=1)`;
-
-  // survivor counts, reported in every response and the whole response when dry
-  const one = async (sql) => (await env.DB.prepare(sql).first())?.n ?? 0;
-  const counts = {
-    instances:            await one(`SELECT COUNT(*) n FROM instances i`),
-    included:             await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL}`),
-    included_verified:    await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL} AND i.verified = 1`),
-    dropped_article_rows: await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL} AND i.verified = 1 AND i.image_url LIKE 'article:%'`),
-    dropped_no_r2:        await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL} AND i.verified = 1 AND i.image_url NOT LIKE 'article:%' AND i.r2_key IS NULL`),
-    dropped_small:        await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL} AND i.verified = 1 AND i.image_url NOT LIKE 'article:%' AND i.r2_key IS NOT NULL AND MAX(COALESCE(i.width,0),COALESCE(i.height,0)) < ${Number(CONFIG.minCardEdge) || 0}`),
-    dropped_hidden:       await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL} AND i.verified = 1 AND COALESCE(i.hidden,0) = 1`),
-    feed_cards:           await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL} AND i.verified = 1 AND ${cardSQL("i")}`),
-    grid_cells:           await one(`SELECT COUNT(*) n FROM frames f JOIN instances i ON i.id = f.canonical_instance_id WHERE ${includeSQL} AND ${cardSQL("i")}`),
-    dropped_other_credit: await one(`SELECT COUNT(*) n FROM instances i WHERE ${includeSQL} AND i.verified = 1 AND COALESCE(i.credit_status,'') IN ('other','no_credit_on_page')`),
-    frames_total:         await one(`SELECT COUNT(*) n FROM frames`),
-    credit_status:        Object.fromEntries((await env.DB.prepare(
-      `SELECT COALESCE(credit_status,'unverified') s, COUNT(*) n FROM instances i WHERE ${includeSQL} GROUP BY 1`).all()).results.map((r) => [r.s, r.n])),
-    minCardEdge: CONFIG.minCardEdge,
-  };
-  if (dry) return json({ dry: true, ...counts });
-
-  const { results: inst } = await env.DB.prepare(
-    `SELECT i.*, f.featured, f.event_date, f.league, f.team_home, f.team_away,
-            f.event_name, f.player, f.caption
-     FROM instances i
-     LEFT JOIN frames f ON f.id = i.frame_id
-     WHERE ${includeSQL}
-       AND i.verified = 1
-       AND ${cardSQL("i")}
-     ORDER BY COALESCE(i.published_at, i.first_seen)`
-  ).all();
-
-  const feed = bucketedShuffle(inst).map(cardOf);
-  await putJSON(env, "data/feed.json", { generated: now(), count: feed.length, items: feed });
-
-  // grid: one cell per frame whose canonical instance qualifies as a card.
-  // Filtered on include (it never was before) and on card eligibility.
-  const { results: frames } = await env.DB.prepare(
-    `SELECT f.*, i.r2_key, i.thumbnail_url, i.width, i.height, i.orientation i_orientation,
-       i.title i_title, i.source_domain i_outlet, i.published_at i_date, i.article_url i_url,
-       i.favicon i_favicon, i.snippet i_snippet, i.first_seen i_first_seen,
-       (SELECT COUNT(*) FROM instances x WHERE x.frame_id = f.id) placements
-     FROM frames f JOIN instances i ON i.id = f.canonical_instance_id
-     WHERE ${includeSQL} AND ${cardSQL("i")}
-     ORDER BY COALESCE(f.event_date, '') DESC, f.id DESC`
-  ).all();
-  const grid = frames.map((f) => ({
-    frame_id: f.id,
-    instance_id: f.canonical_instance_id,
-    src: `/img/${f.canonical_instance_id}/600.jpg`,
-    width: f.width || null,
-    height: f.height || null,
-    orientation: f.orientation || f.i_orientation || orientationOf(f.width, f.height) || "landscape",
-    featured: !!f.featured,
-    placements: f.placements,
-    title: f.i_title || null, outlet: f.i_outlet || null, date: f.i_date || null,
-    article_url: f.i_url || null, favicon: f.i_favicon || null,
-    excerpt: excerptOf(f), byline: f.credit_text || null,
-    sport: sportOf(f), first_seen: f.i_first_seen || null,
-  }));
-  await putJSON(env, "data/grid.json", { generated: now(), items: grid });
-
-  // placements.json: one row per article across every included domain, tight and
-  // loose, image optional. This is what the by-outlet list reads. An article that
-  // credits the photographer is a tearsheet whether or not a card-worthy image of
-  // it exists, so none of the card gates apply here except hidden and credit.
-  const { results: plRows } = await env.DB.prepare(
-    `SELECT i.id, i.frame_id, i.article_url, i.title, i.article_title, i.source_domain, i.favicon,
-            i.published_at, i.article_date, i.first_seen, i.snippet, i.excerpt, i.credit_text, i.credit_status,
-            i.verified, i.league, i.r2_key, i.width, i.height, i.orientation, i.image_url, i.verified_image_url, i.hidden,
-            (${cardSQL("i")}) AS is_card
-     FROM instances i
-     WHERE ${includeSQL} AND COALESCE(i.hidden,0) = 0
-       AND COALESCE(i.credit_status,'') NOT IN ('other','no_credit_on_page')
-     ORDER BY i.article_url, is_card DESC, i.verified DESC, i.id`
-  ).all();
-  const byArticle = new Map();
-  for (const r of plRows) {
-    const key = r.article_url.replace(/[?#].*$/, "");
-    if (!byArticle.has(key)) {
-      const c = cardOf(r);
-      byArticle.set(key, { ...c, article_url: key, images: 0, tight: 0, statuses: {} });
-    }
-    const p = byArticle.get(key);
-    p.images++;
-    if (r.verified) p.tight = 1;
-    p.statuses[r.credit_status || "unverified"] = (p.statuses[r.credit_status || "unverified"] || 0) + 1;
-    if (!p.src && r.is_card) { p.src = `/img/${r.id}/600.jpg`; p.large = `/img/${r.id}/1600.jpg`; p.width = r.width; p.height = r.height; }
-    if (!p.byline && r.credit_text) p.byline = r.credit_text;
-    if (!p.excerpt && (r.excerpt || r.snippet)) p.excerpt = excerptOf(r);
-    if (!p.date && (r.published_at || r.article_date)) p.date = r.published_at || r.article_date;
-  }
-  const placements = [...byArticle.values()].map((p) => {
-    if (!p.is_card) { p.src = p.src || null; p.large = p.large || null; }
-    delete p.is_card; delete p.caption; delete p.featured;
-    return p;
-  }).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) ||
-                    String(b.first_seen || "").localeCompare(String(a.first_seen || "")));
-  await putJSON(env, "data/placements.json", { generated: now(), count: placements.length, items: placements });
-
-  // frame files: written for every frame, not just grid frames, so "all placements"
-  // links from older feed items keep resolving.
-  const { results: allFrames } = await env.DB.prepare(`SELECT * FROM frames`).all();
-  for (const f of allFrames) {
-    const { results: places } = await env.DB.prepare(
-      `SELECT id, frame_id, article_url, title, article_title, source_domain, published_at, article_date,
-              favicon, r2_key, thumbnail_url, image_url, verified_image_url, width, height, orientation, hidden,
-              snippet, excerpt, credit_text, credit_status, first_seen,
-              (${cardSQL("instances")}) AS is_card
-       FROM instances WHERE frame_id=? ORDER BY published_at`
-    ).bind(f.id).all();
-    const canonical = places.find((p) => p.id === f.canonical_instance_id);
-    const hero = canonical && canonical.is_card ? cardOf(canonical) :
-      (places.find((p) => p.is_card) ? cardOf(places.find((p) => p.is_card)) : null);
-    const licenses = places.filter((p) =>
-      CONFIG.stockDomains.some((s) => p.source_domain.endsWith(s)));
-    const cards = places.filter((p) => !licenses.includes(p));
-    await putJSON(env, `data/frame/${f.id}.json`, {
-      frame: f, hero, placements: cards.map(cardOf), licenses: licenses.map(cardOf),
-    });
-  }
-  return json({ written: true, feed: feed.length, grid: grid.length, placements: placements.length, frames: allFrames.length, ...counts });
-}
-
-/* src and large are null when the row has no R2 object. The front end must treat a
-   null src as "no photograph", never fall back to a third-party URL: SerpApi
-   thumbnail URLs expire, which is what produced the broken-image cards. */
-function cardOf(i) {
-  const has = !!i.r2_key;
-  return {
-    id: i.id, frame_id: i.frame_id,
-    src: has ? `/img/${i.id}/600.jpg` : null,
-    large: has ? `/img/${i.id}/1600.jpg` : null,
-    is_card: i.is_card === undefined ? has : !!i.is_card,
-    width: i.width || null, height: i.height || null,
-    article_url: i.article_url, title: i.article_title || i.title, outlet: i.source_domain,
-    favicon: i.favicon, date: i.published_at || i.article_date || null,
-    credit_status: i.credit_status || null,
-    orientation: i.orientation || orientationOf(i.width, i.height) || "landscape",
-    featured: !!i.featured, caption: i.caption || null,
-    excerpt: excerptOf(i), byline: i.credit_text || null,
-    sport: sportOf(i), first_seen: i.first_seen || null,
-  };
-}
-
-/* Sport for cards. Wire league prefix first, then keyword scan of title, excerpt and
-   URL path. "Other" rather than null so unmatched rows are visible in the list view. */
-function sportOf(i) {
-  const lg = (i.league || "").toUpperCase();
-  if (lg && CONFIG.leagueToSport[lg]) return CONFIG.leagueToSport[lg];
-  const hay = " " + [i.title, i.i_title, i.excerpt, i.i_snippet, i.snippet, i.caption,
-    i.source_domain, i.i_outlet,
-    (i.article_url || i.i_url || "").replace(/^https?:\/\//, "").replace(/[-_/.]+/g, " ")]
-    .filter(Boolean).join(" ").toLowerCase() + " ";
-  for (const [sport, words] of CONFIG.sportKeywords) {
-    if (words.some((w) => hay.includes(w))) return sport;
-  }
-  return "Other";
-}
-
-/* Article excerpt for cards. Prefers instances.excerpt (first ~100 words, written by
-   the verification pass once it exists), then the SERP snippet. Trailing ellipsis
-   trimmed so the front end can add its own. */
-function excerptOf(i) {
-  const t = i.excerpt || i.i_snippet || i.snippet || null;
-  return t ? String(t).replace(/\s*(\.\.\.|\u2026)\s*$/, "").trim() || null : null;
-}
-
-// months chronological, seeded shuffle within each month, then domain interleave
-function bucketedShuffle(items) {
-  const seed = Number(new Date().toISOString().slice(0, 10).replace(/-/g, ""));
-  const rand = mulberry32(seed);
-  const buckets = new Map();
-  for (const i of items) {
-    const k = (i.published_at || i.first_seen || "0000").slice(0, 7);
-    (buckets.get(k) || buckets.set(k, []).get(k)).push(i);
-  }
-  const out = [];
-  for (const k of [...buckets.keys()].sort()) {
-    const b = buckets.get(k);
-    for (let n = b.length - 1; n > 0; n--) {
-      const j = Math.floor(rand() * (n + 1));
-      [b[n], b[j]] = [b[j], b[n]];
-    }
-    out.push(...b);
-  }
-  // interleave on source_domain only. never on frame: repeats are the point.
-  for (let n = 1; n < out.length - 1; n++) {
-    if (out[n].source_domain === out[n - 1].source_domain) {
-      [out[n], out[n + 1]] = [out[n + 1], out[n]];
-    }
-  }
-  return out;
-}
-function mulberry32(a) {
-  return function () {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-async function putJSON(env, key, obj) {
-  await env.IMAGES.put(key, JSON.stringify(obj), {
-    httpMetadata: { contentType: "application/json", cacheControl: "public, max-age=300" },
+function loadImage(src, timeoutMs = 30000) {
+  return new Promise((res, rej) => {
+    const i = new Image();
+    const t = setTimeout(() => rej(new Error("timeout")), timeoutMs);
+    i.crossOrigin = "anonymous";
+    i.onload = () => { clearTimeout(t); res(i); };
+    i.onerror = () => { clearTimeout(t); rej(new Error("load error")); };
+    i.src = src;
   });
 }
-
-
-/* ---------------- verification: read the article, find the credit ---------------- */
-/* Nothing upstream ever asserted that a cached image is the photographer's own
-   frame (handoff 4, Finding 1). This pass does. It fetches the article once,
-   collects every image with the text around it, matches the cached image to a
-   page image by wire id or filename, and classifies the credit sitting next to it.
-
-   credit_status values:
-     confirmed          photographer's name is in the matched image's alt/title/figure text
-     other              a different credit line is there (another photographer or agency)
-     unknown            matched an image, but no credit text near it
-     unmatched          page fetched and credited, but none of its images match this row
-     no_credit_on_page  the name appears nowhere in the page at all
-     unreachable        fetch failed or non-200; verify_http holds the code
-   For article rows (news/web, image_url 'article:...') the confirmed page image
-   becomes verified_image_url and the row is queued for a full-size R2 fetch. */
-
-const VERIFY_COLS = [
-  "credit_status TEXT", "credit_text TEXT", "verified_image_url TEXT",
-  "excerpt TEXT", "article_date TEXT", "article_title TEXT",
-  "verify_http INTEGER", "verified_at TEXT",
-];
-async function ensureVerifyColumns(env) {
-  for (const c of VERIFY_COLS) {
-    try { await env.DB.prepare(`ALTER TABLE instances ADD COLUMN ${c}`).run(); } catch {}
-  }
-  try { await env.DB.prepare(`ALTER TABLE instances ADD COLUMN hidden INTEGER DEFAULT 0`).run(); } catch {}
-}
-
-const AGENCY = "USA TODAY(?: Sports)?(?: Images)?|Imagn(?: Images)?|US Presswire|Getty(?: Images)?|Associated Press|AP Photo|AP|Reuters|AFP|Icon Sportswire|Zuma(?: Press)?|NurPhoto|Sipa(?: USA)?|Imago|Shutterstock|EPA|MLB Photos|NBAE|NHLI|PGA TOUR";
-const CREDIT_RE = new RegExp(
-  `\\b([A-Z][A-Za-z.'\\u2019-]+(?:\\s+[A-Z][A-Za-z.'\\u2019-]+){1,2})\\s*[-\\u2013\\u2014/|,]\\s*(${AGENCY})\\b|\\b(${AGENCY})\\b`);
-
-function ownNames() {
-  return (CONFIG.photographerNames || []).map((n) => String(n).toLowerCase()).filter(Boolean);
-}
-function hasOwnName(text) {
-  const t = String(text || "").toLowerCase();
-  return ownNames().some((n) => t.includes(n));
-}
-function classifyCredit(text) {
-  const t = String(text || "").replace(/\s+/g, " ").trim();
-  if (!t) return { status: "unknown", credit: null };
-  if (hasOwnName(t)) {
-    const n = ownNames().find((x) => t.toLowerCase().includes(x));
-    const i = t.toLowerCase().indexOf(n);
-    const start = Math.max(0, t.lastIndexOf(".", i) + 1, t.lastIndexOf(";", i) + 1, i - 60);
-    const end = Math.min(t.length, i + n.length + 40);
-    return { status: "confirmed", credit: t.slice(start, end).trim().slice(0, 120) };
-  }
-  const m = t.match(CREDIT_RE);
-  if (m) {
-    // a copyright mark or "Photo:" / "Credit:" label ahead of the match names the
-    // photographer; read from there so "(c) Owen Ziliak/The Republic / USA TODAY"
-    // is recorded whole rather than from "The Republic" on.
-    const lead = t.slice(0, m.index);
-    const lm = lead.match(/(?:\u00a9|\(c\)|photo(?:graph)?(?: by)?:?|credits?:?|mandatory credit:?)\s*([^.;|]*)$/i);
-    const credit = lm ? (lm[1] + m[0]).replace(/\s+/g, " ").trim() : m[0].trim();
-    return { status: "other", credit: credit.slice(0, 120) };
-  }
-  return { status: "unknown", credit: null };
-}
-
-/* tokens that identify one specific image file across CDN rewrites */
-function imageKeys(u) {
-  let s = String(unwrapProxyUrl(u) || u || "");
-  try { s = decodeURIComponent(s); } catch {}
-  const keys = new Set();
-  for (const m of s.matchAll(/(?:USATSI|imagn|GettyImages|AP)[-_]?(\d{6,})/gi)) keys.add(m[1]);
-  for (const m of s.matchAll(/\d{9,}/g)) keys.add(m[0]);
-  const fn = s.split("?")[0].split("#")[0].split("/").pop() || "";
-  const stem = fn.replace(/\.(jpe?g|png|webp|avif|gif)$/i, "").toLowerCase();
-  if (stem.length >= 10) keys.add(stem);
-  return keys;
-}
-function keysOverlap(a, b) { for (const k of a) if (b.has(k)) return true; return false; }
-
-function largestFromSrcset(srcset) {
-  let best = null, bestW = -1;
-  for (const part of String(srcset || "").split(",")) {
-    const [url, d] = part.trim().split(/\s+/);
-    if (!url) continue;
-    const w = d ? (d.endsWith("w") ? Number(d.slice(0, -1)) : d.endsWith("x") ? Number(d.slice(0, -1)) * 1000 : 0) : 0;
-    if (w > bestW) { bestW = w; best = url; }
-  }
-  return best;
-}
-function absURL(u, base) { try { return new URL(u, base).href; } catch { return null; } }
-
-/* Fetch and parse one article. Returns { http, title, date, excerpt, pageHasName, images:[...] } */
-async function readArticle(url) {
-  let res;
-  try {
-    res = await fetch(url, {
-      redirect: "follow",
-      headers: {
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-        accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.9",
-      },
-    });
-  } catch (e) {
-    return { http: 0, error: String(e.message || e) };
-  }
-  const ct = res.headers.get("content-type") || "";
-  if (!res.ok || !/html/i.test(ct)) return { http: res.status, error: res.ok ? `content-type ${ct}` : "non-200" };
-
-  const meta = {};
-  const figs = new Map();
-  const imgs = [];
-  const paras = [];
-  const lds = [];
-  let figId = 0, curFig = null, pendingFig = null, pBuf = "", ldBuf = "", allText = "";
-
-  const rw = new HTMLRewriter()
-    .on("meta", { element(e) {
-      const k = (e.getAttribute("property") || e.getAttribute("name") || "").toLowerCase();
-      const v = e.getAttribute("content");
-      if (k && v && meta[k] === undefined) meta[k] = v;
-    } })
-    .on("figure", {
-      element(e) {
-        const id = ++figId; curFig = id; figs.set(id, "");
-        // if this figure closes with no caption text, the next paragraph is it
-        e.onEndTag(() => { if (curFig === id) { curFig = null; pendingFig = figs.get(id).trim() ? null : id; } });
-      },
-      text(t) { if (curFig) figs.set(curFig, figs.get(curFig) + t.text); },
-    })
-    .on("img", { element(e) {
-      // lazy-loaded pages put a data: stub in src and the real file in some
-      // data-* attribute whose name varies by plugin. Scan every attribute and
-      // keep the ones that look like image URLs. data: URIs are never taken.
-      const looksImg = (v) => !!v && !/^\s*data:/i.test(v)
-        && /^(https?:)?\/\/|^\//.test(v.trim())
-        && /\.(jpe?g|png|webp|gif|avif)(\?|,|\s|$)|\/upload\/|\/wp-content\//i.test(v);
-      let src = "", srcset = "", other = "";
-      for (const [name, value] of e.attributes) {
-        if (!looksImg(value)) continue;
-        const n = name.toLowerCase();
-        // a data-* attribute beats the plain one: the plain one is the placeholder
-        if (/srcset/.test(n)) { if (n !== "srcset" || !srcset) srcset = value; }
-        else if (/src|original|lazy|orig/.test(n)) { if (n !== "src" || !src) src = value; }
-        else other = other || value;
-      }
-      src = src || other;
-      imgs.push({ src, srcset, alt: e.getAttribute("alt") || "", title: e.getAttribute("title") || "", fig: curFig });
-    } })
-    .on("p", {
-      element(e) {
-        pBuf = "";
-        e.onEndTag(() => {
-          const s = pBuf.replace(/\s+/g, " ").trim();
-          if (pendingFig !== null) { if (s) figs.set(pendingFig, (figs.get(pendingFig) || "") + " " + s); pendingFig = null; }
-          if (s.length > 40) paras.push(s);
-          pBuf = "";
-        });
-      },
-      text(t) { pBuf += t.text; },
-    })
-    .on('script[type="application/ld+json"]', { text(t) {
-      ldBuf += t.text; if (t.lastInTextNode) { lds.push(ldBuf); ldBuf = ""; }
-    } })
-    .on("body", { text(t) { if (allText.length < 400000) allText += t.text; } });
-
-  try { await rw.transform(res).text(); } catch (e) { return { http: res.status, error: "parse: " + (e.message || e) }; }
-
-  // date: meta first, then JSON-LD datePublished
-  let date = meta["article:published_time"] || meta["og:updated_time"] || meta["date"] || meta["pubdate"] || meta["parsely-pub-date"] || null;
-  if (!date) for (const ld of lds) { const m = ld.match(/"datePublished"\s*:\s*"([^"]+)"/); if (m) { date = m[1]; break; } }
-  let excerpt = null;
-  if (paras.length) {
-    const words = paras.join(" ").split(/\s+/);
-    excerpt = words.slice(0, 100).join(" ") + (words.length > 100 ? "" : "");
-  }
-  const images = imgs.map((im) => {
-    const figText = im.fig ? figs.get(im.fig) || "" : "";
-    const ctx = [im.alt, im.title, figText].filter(Boolean).join(" | ");
-    const cls = classifyCredit(ctx);
-    const best = upsizeCdnUrl(absURL(largestFromSrcset(im.srcset) || im.src, url));
-    return { url: best, keys: imageKeys(best || im.src), alt: im.alt.slice(0, 200), status: cls.status, credit: cls.credit };
-  }).filter((im) => im.url);
-  return {
-    http: res.status,
-    title: meta["og:title"] || meta["twitter:title"] || null,
-    date: parseDateLoose(date),
-    excerpt,
-    pageHasName: hasOwnName(allText) || images.some((i) => i.status === "confirmed"),
-    images,
-  };
-}
-
-/* Decide one instance against a parsed article */
-function judge(inst, art) {
-  if (!art || art.error) return { credit_status: "unreachable", credit_text: art?.error || null, verified_image_url: null, matched: null };
-  const isArticleRow = String(inst.image_url).startsWith("article:") || String(inst.image_url).startsWith("pending:");
-  if (!art.pageHasName) return { credit_status: "no_credit_on_page", credit_text: null, verified_image_url: null, matched: null };
-  const confirmed = art.images.filter((i) => i.status === "confirmed");
-  if (isArticleRow) {
-    if (confirmed.length >= 1) {
-      return { credit_status: "confirmed", credit_text: confirmed[0].credit, verified_image_url: confirmed[0].url,
-        matched: confirmed[0].url, note: confirmed.length > 1 ? `${confirmed.length} confirmed images on page, took first` : null };
-    }
-    return { credit_status: "unmatched", credit_text: null, verified_image_url: null, matched: null };
-  }
-  const mine = imageKeys(inst.image_url);
-  const hit = art.images.find((i) => keysOverlap(mine, i.keys));
-  if (!hit) {
-    // by elimination: the row's filename is gone from the page (re-hosted) but
-    // the page carries exactly one image credited to Allan. Take it.
-    if (confirmed.length === 1) {
-      return { credit_status: "confirmed", credit_text: confirmed[0].credit, verified_image_url: confirmed[0].url,
-        matched: confirmed[0].url, note: "assigned by elimination: row filename not on page, sole confirmed image taken" };
-    }
-    return { credit_status: "unmatched", credit_text: null, verified_image_url: null, matched: null,
-      note: confirmed.length > 1 ? `${confirmed.length} confirmed images on page, row filename matches none` : null };
-  }
-  return { credit_status: hit.status, credit_text: hit.credit, verified_image_url: null, matched: hit.url };
-}
-
-async function verify(url, env) {
-  await ensureVerifyColumns(env);
-  const dry = url.searchParams.get("dry") === "1";
-  const one = url.searchParams.get("id");
-  const batch = Math.min(100, Number(url.searchParams.get("batch") || 20));
-  const redo = url.searchParams.get("redo") === "1";
-  const before = redo ? (url.searchParams.get("before") || null) : null;
-  if (!ownNames().length) return json({ error: "CONFIG.photographerNames is empty; set it in CONFIG_JSON, e.g. {\"photographerNames\":[\"jane doe\"]}" }, 400);
-
-  const where = one ? `i.id = ${Number(one)}` :
-    `${redo ? (before ? "(i.verified_at IS NULL OR i.verified_at < ?)" : "1=1") : "i.credit_status IS NULL"}
-     AND i.source_domain IN (SELECT domain FROM domains WHERE include=1)
-     AND i.article_url NOT LIKE 'https://www.google.com/%'`;
-  const whereBind = (!one && redo && before) ? [before] : [];
-  // pick whole articles: distinct URLs first, then every instance on them
-  const { results: urls } = await env.DB.prepare(
-    `SELECT DISTINCT i.article_url u FROM instances i WHERE ${where} ORDER BY i.id LIMIT ?`).bind(...whereBind, one ? 1 : batch).all();
-  if (!urls.length) return json({ dry, articles: 0, note: "queue drained" });
-  const list = urls.map((r) => r.u);
-  const { results: rows } = await env.DB.prepare(
-    `SELECT i.id, i.article_url, i.image_url, i.source_domain FROM instances i
-     WHERE i.article_url IN (${list.map(() => "?").join(",")}) ${one ? `AND i.id = ${Number(one)}` : ""}`
-  ).bind(...list).all();
-
-  const t = now();
-  const report = { dry, articles: list.length, instances: rows.length, by_status: {}, details: [] };
-  const parsed = new Map();
-  for (const u of list) parsed.set(u, await readArticle(u));
-
-  for (const r of rows) {
-    const art = parsed.get(r.article_url);
-    const j = judge(r, art);
-    report.by_status[j.credit_status] = (report.by_status[j.credit_status] || 0) + 1;
-    if (one || dry || report.details.length < 40) {
-      report.details.push({ id: r.id, domain: r.source_domain, status: j.credit_status, credit: j.credit_text,
-        matched: j.matched, verified_image_url: j.verified_image_url, http: art?.http, title: art?.title, date: art?.date,
-        excerpt: one ? art?.excerpt : (art?.excerpt || "").slice(0, 80), note: j.note,
-        ...(one ? { page_images: art?.images?.map((i) => ({ url: i.url.slice(0, 140), status: i.status, credit: i.credit, alt: i.alt.slice(0, 100) })) } : {}) });
-    }
-    if (dry) continue;
-    // article rows that just gained a real image: clear r2_key so fetch-images
-    // pulls the full-size file, and clear dims so the hash pass measures it.
-    const requeue = j.verified_image_url ? 1 : 0;
-    await env.DB.prepare(
-      `UPDATE instances SET credit_status=?, credit_text=?, verified_image_url=COALESCE(?, verified_image_url),
-         excerpt=COALESCE(?, excerpt), article_date=COALESCE(?, article_date), article_title=COALESCE(?, article_title),
-         verify_http=?, verified_at=?,
-         r2_key = CASE WHEN ?=1 THEN NULL ELSE r2_key END,
-         fetch_failed = CASE WHEN ?=1 THEN 0 ELSE fetch_failed END,
-         width = CASE WHEN ?=1 THEN NULL ELSE width END,
-         height = CASE WHEN ?=1 THEN NULL ELSE height END,
-         dhash = CASE WHEN ?=1 THEN NULL ELSE dhash END
-       WHERE id=?`
-    ).bind(j.credit_status, j.credit_text, j.verified_image_url, art?.excerpt || null, art?.date || null, art?.title || null,
-      art?.http ?? null, t, requeue, requeue, requeue, requeue, requeue, r.id).run();
-  }
-  return json(report);
-}
-
-/* ---------------- Google Sheets sync ---------------- */
-/* Field-level separation: the Worker appends rows and updates counts.
-   It never writes a column a human edits (featured, include, display_name). */
-
-async function sheetsSync(env) {
-  if (!env.SHEETS_SA || !env.SHEET_ID) return json({ skipped: "SHEETS_SA / SHEET_ID not set" });
-  const token = await googleToken(env);
-
-  // Domains tab: pull include / type / display_name edits back into D1
-  const domRows = await sheetGet(env, token, "Domains!A2:E");
-  for (const r of domRows) {
-    const [domain, include, type, display] = r;
-    if (!domain) continue;
-    await env.DB.prepare(
-      `UPDATE domains SET include=?, type=COALESCE(?, type),
-         display_name=COALESCE(?, display_name) WHERE domain=?`
-    ).bind(include === "TRUE" ? 1 : 0, type || null, display || null, domain).run();
-  }
-  // Append domains D1 knows that the sheet does not
-  const known = new Set(domRows.map((r) => r[0]));
-  const { results: allDoms } = await env.DB.prepare(`SELECT * FROM domains`).all();
-  const newDoms = allDoms.filter((d) => !known.has(d.domain))
-    .map((d) => [d.domain, d.include ? "TRUE" : "FALSE", d.type, d.display_name, d.frame_count]);
-  if (newDoms.length) await sheetAppend(env, token, "Domains!A:E", newDoms);
-
-  // Frames tab (newest batch): pull featured edits, append new frames
-  const frRows = await sheetGet(env, token, "Frames!A2:C");
-  for (const r of frRows) {
-    const [fid, , featured] = r;
-    if (!fid) continue;
-    await env.DB.prepare(`UPDATE frames SET featured=? WHERE id=?`)
-      .bind(featured === "TRUE" ? 1 : 0, Number(fid)).run();
-  }
-  const knownF = new Set(frRows.map((r) => String(r[0])));
-  const { results: allFrames } = await env.DB.prepare(
-    `SELECT f.id, f.caption, f.featured, f.canonical_instance_id cid FROM frames f`).all();
-  const newFrames = allFrames.filter((f) => !knownF.has(String(f.id)))
-    .map((f) => [f.id,
-      `=IMAGE("${CONFIG.sheetImageBase}/img/${f.cid}/600.jpg")`,
-      f.featured ? "TRUE" : "FALSE",
-      (f.caption || "").slice(0, 200)]);
-  if (newFrames.length) await sheetAppend(env, token, "Frames!A:D", newFrames);
-
-  return json({ domainsPulled: domRows.length, domainsPushed: newDoms.length,
-    framesPulled: frRows.length, framesPushed: newFrames.length });
-}
-
-async function sheetGet(env, token, range) {
-  const r = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}/values/${encodeURIComponent(range)}`,
-    { headers: { authorization: `Bearer ${token}` } });
-  const d = await r.json();
-  return d.values || [];
-}
-async function sheetAppend(env, token, range, values) {
-  await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED`,
-    { method: "POST",
-      headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-      body: JSON.stringify({ values }) });
-}
-
-async function googleToken(env) {
-  const sa = JSON.parse(env.SHEETS_SA);
-  const iat = Math.floor(Date.now() / 1000);
-  const header = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claims = b64url(JSON.stringify({
-    iss: sa.client_email, scope: "https://www.googleapis.com/auth/spreadsheets",
-    aud: "https://oauth2.googleapis.com/token", iat, exp: iat + 3600,
-  }));
-  const input = `${header}.${claims}`;
-  const key = await crypto.subtle.importKey("pkcs8", pemToDer(sa.private_key),
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
-  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(input));
-  const jwt = `${input}.${b64url(sig)}`;
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
-  });
-  const d = await res.json();
-  if (!d.access_token) throw new Error("sheets auth failed: " + JSON.stringify(d));
-  return d.access_token;
-}
-function b64url(x) {
-  const bytes = typeof x === "string" ? new TextEncoder().encode(x) : new Uint8Array(x);
-  let s = ""; for (const b of bytes) s += String.fromCharCode(b);
-  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-function pemToDer(pem) {
-  const b64 = pem.replace(/-----[^-]+-----/g, "").replace(/\s/g, "");
-  const bin = atob(b64);
-  const buf = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-  return buf.buffer;
-}
+</script>
+</body>
+</html>
