@@ -1,5 +1,11 @@
 <!doctype html>
-<!-- Created: 2026-09-13 14:55 MST (America/Phoenix)
+<!-- Created: 2026-09-13 15:05 MST (America/Phoenix)
+     Supersedes the 14:55 copy. Manual decisions in the Unresolved table (needs
+     Worker 15:05): per row, "Mine" (row keeps its own picture), "Not mine",
+     "Hide". Under the Check output, every page image gets "This one is mine",
+     which confirms the row with that picture and requeues it for fetch. Rows
+     already decided by hand show MANUAL and are skipped by batch verify.
+     14:55 header follows.
      Supersedes the 14:50 copy. Adds the version line under the title: this
      page's PAGE_BUILD, and the Worker's build read from /health on load.
      Update PAGE_BUILD on every edit of this file.
@@ -83,7 +89,7 @@
 </style>
 </head>
 <body>
-<header class="site"><h1>Review</h1><div id="builds" class="dist">page 2026-09-13 14:55 MST · worker: checking</div></header>
+<header class="site"><h1>Review</h1><div id="builds" class="dist">page 2026-09-13 15:05 MST · worker: checking</div></header>
 <main>
   <div class="bar">
     <input id="token" type="password" placeholder="admin token" size="30">
@@ -119,7 +125,7 @@
 import { dhashFromImage, hamming } from "/assets/parsers.js";
 import { mediaURL } from "/assets/site.js";
 
-const PAGE_BUILD = "2026-09-13 14:55 MST"; // update on every edit
+const PAGE_BUILD = "2026-09-13 15:05 MST"; // update on every edit
 const WORKER = "/api"; // route the Worker under /api via its route pattern, or set an absolute URL
 const log = (m) => document.getElementById("log").textContent += m + "\n";
 const tokenEl = document.getElementById("token");
@@ -292,9 +298,11 @@ function rowHTML(r) {
   return `<tr data-id="${r.id}">
     <td>${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy">` : ""}</td>
     <td>${esc(r.source_domain)}<br><span class="dist">#${r.id}</span></td>
-    <td><span class="st ${esc(r.credit_status)}">${esc(r.credit_status)}</span>${r.credit_text ? `<br><span class="dist">${esc(r.credit_text)}</span>` : ""}</td>
+    <td><span class="st ${esc(r.credit_status)}">${esc(r.credit_status)}</span>${r.manual ? ' <span class="dist">MANUAL</span>' : ""}${r.credit_text ? `<br><span class="dist">${esc(r.credit_text)}</span>` : ""}</td>
     <td><a href="${esc(r.article_url)}" target="_blank" rel="noopener">${esc(String(title).slice(0, 110))}</a></td>
-    <td><button data-act="check">Check</button><button data-act="redo">Redo</button></td>
+    <td><button data-act="check">Check</button><button data-act="redo">Redo</button><br>
+        ${r.r2_key || (r.image_url && !/^(article|pending):/.test(r.image_url)) ? '<button data-act="mine">Mine</button>' : ""}
+        <button data-act="not_mine">Not mine</button><button data-act="hide">Hide</button></td>
   </tr>
   <tr class="detail-row" data-for="${r.id}" style="display:none"><td></td><td colspan="4" class="detail"></td></tr>`;
 }
@@ -317,32 +325,52 @@ document.getElementById("loadUnresolved").onclick = async () => {
   catch (e) { status.textContent = "load unresolved: FAILED"; log("ERROR load unresolved: " + (e.message || e)); }
 };
 
-function describe(d) {
+function describeHTML(d) {
   const det = d.details && d.details[0];
-  if (!det) return JSON.stringify(d, null, 2);
-  const lines = [`status ${det.status}${det.credit ? ", credit: " + det.credit : ""}${det.note ? "\nnote: " + det.note : ""}`,
-    `http ${det.http}  matched: ${det.matched || "none"}`, ""];
+  if (!det) return esc(JSON.stringify(d, null, 2));
+  let h = `status ${esc(det.status)}${det.credit ? ", credit: " + esc(det.credit) : ""}${det.note ? "\nnote: " + esc(det.note) : ""}\n` +
+    `http ${esc(det.http)}  matched: ${esc(det.matched || "none")}\n\n`;
   for (const im of det.page_images || []) {
     if (/\.(png|svg|ico)(\?|$)|favicon|icon|logo|\.html?$/i.test(im.url) && im.status === "unknown") continue;
-    lines.push(`${im.status.padEnd(9)} ${im.credit || ""}\n          ${im.url}`);
+    h += `${esc(im.status.padEnd(9))} ${esc(im.credit || "")} <button data-act="mine_image" data-url="${esc(im.url)}">This one is mine</button>\n` +
+         `          <a href="${esc(im.url)}" target="_blank" rel="noopener">${esc(im.url)}</a>\n`;
   }
-  return lines.join("\n");
+  return h;
+}
+
+function setRowStatus(id, status, manual) {
+  const tr = document.querySelector(`tr[data-id="${id}"]`); if (!tr) return;
+  const st = tr.querySelector(".st"); st.textContent = status; st.className = "st " + status;
+  if (manual && !st.nextElementSibling?.textContent?.includes("MANUAL")) st.insertAdjacentHTML("afterend", ' <span class="dist">MANUAL</span>');
 }
 
 document.getElementById("unresolved").addEventListener("click", async (ev) => {
   const btn = ev.target.closest("button[data-act]"); if (!btn) return;
-  const tr = btn.closest("tr"); const id = tr.dataset.id;
+  const act = btn.dataset.act;
+  const tr = btn.closest("tr");
+  const id = tr.dataset.id || tr.dataset.for;   // detail-row buttons carry data-for
   const det = document.querySelector(`tr.detail-row[data-for="${id}"]`);
   const cell = det.querySelector(".detail");
-  det.style.display = ""; cell.textContent = btn.dataset.act === "redo" ? "re-reading and writing..." : "reading page...";
   btn.disabled = true;
   try {
-    const d = await api(`/verify?id=${id}${btn.dataset.act === "check" ? "&dry=1" : "&redo=1"}`);
-    cell.textContent = describe(d);
-    if (btn.dataset.act === "redo" && d.details && d.details[0]) {
-      const st = tr.querySelector(".st"); st.textContent = d.details[0].status; st.className = "st " + d.details[0].status;
+    if (act === "check" || act === "redo") {
+      det.style.display = ""; cell.textContent = act === "redo" ? "re-reading and writing..." : "reading page...";
+      const d = await api(`/verify?id=${id}${act === "check" ? "&dry=1" : "&redo=1"}`);
+      cell.innerHTML = describeHTML(d);
+      if (act === "redo" && d.details && d.details[0] && d.details[0].status) setRowStatus(id, d.details[0].status, false);
+    } else if (act === "mine" || act === "mine_image" || act === "not_mine" || act === "hide") {
+      const body = { id: Number(id), decision: act === "mine_image" ? "mine" : act };
+      if (act === "mine_image") body.image_url = btn.dataset.url;
+      const label = act === "hide" ? "Hide this row from the site?" : act === "not_mine" ? "Mark as not yours (status other)?" :
+        act === "mine_image" ? "Confirm this row as yours with this picture?" : "Confirm this row as yours with its current picture?";
+      if (!confirm(label)) return;
+      const d = await api("/admin/override", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+      det.style.display = ""; cell.textContent = JSON.stringify(d, null, 2) + (d.requeued ? "\n\nrequeued: run 6. Fetch, then 1. Hash, then publish" : "");
+      if (d.decision === "mine") setRowStatus(id, "confirmed", true);
+      if (d.decision === "not_mine") setRowStatus(id, "other", true);
+      if (d.decision === "hide") tr.style.opacity = "0.35";
     }
-  } catch (e) { cell.textContent = "ERROR " + (e.message || e); }
+  } catch (e) { det.style.display = ""; cell.textContent = "ERROR " + (e.message || e); }
   finally { btn.disabled = false; }
 });
 
